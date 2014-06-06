@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html ng-app="jukebox" lang="en" >
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,36 +7,74 @@
     <meta name="description" content="Spotistic's Jukebox">
     <title>Jukebox</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="/jukebox.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/jukebox.png">
   </head>
 
-  <body>
-    <div class="site-wrapper">
-      <div class="site-wrapper-inner">
-        <div class="cover-container">
+  <body ng-controller="MainCtrl">
+    <div class="container">
+      <div class="row masthead">
+        <div class="col-md-12">
+          <ul class="nav masthead-nav pull-right">
+            <li class="active"><a href="/">Home</a></li>
+            <li><a href="#">History</a></li>
+            <li><a href="#">Stats</a></li>
+          </ul>
+          <h3 class="masthead-brand">Jukebox</h3>
+        </div>
+      </div>
 
-          <div class="masthead clearfix">
-            <div class="inner">
-              <h3 class="masthead-brand">Cover</h3>
-              <ul class="nav masthead-nav">
-                <li class="active"><a href="#">Home</a></li>
-                <li><a href="#">Features</a></li>
-                <li><a href="#">Contact</a></li>
-              </ul>
-            </div>
-          </div>
-
+      <div class="row">
+        <div class="col-md-12">
           <div class="inner cover">
-            <h1 class="cover-heading">Cover your page.</h1>
-            <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>
+            <img src="/img/cover.jpg" alt="Cover">
+            <h1 class="cover-heading" ng-bind="currentTrack.title"></h1>
+            <p class="lead">{{currentTrack.artist}} • {{currentTrack.duration}}</p>
             <p class="lead">
-              <a href="#" class="btn btn-lg btn-default">Learn more</a>
+              <a href="#" class="btn btn-default"><i class="fa fa-fast-forward"></i> Skip</a>
             </p>
           </div>
+        </div>
+      </div>
 
+      <div class="row tracklist">
+        <div class="col-md-6 col-md-offset-3">
+          <h3><i class="fa fa-music"></i> Tracklist</h3>
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Artist</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="track in trackList">
+                <td ng-bind="track.title"></td>
+                <td ng-bind="track.artist"></td>
+                <td ng-bind="track.duration"></td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <form ng-submit="addTrack()">
+                    <div class="input-group">
+                      <span class="input-group-addon"><i class="fa fa-plus"></i></span>
+                      <input type="text" class="form-control" ng-model="newTrack" placeholder="https://soundcloud.com/ghoststoriesmixtape/ghost-stories-ghostface">
+                    </div>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
           <div class="mastfoot">
             <div class="inner">
-              <p>Cover template for <a href="http://getbootstrap.com">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
+              <p>Always have some music playing at <a href="https://spotistic.com">Spotistic</a>, by <a href="https://twitter.com/baptou12">@baptou12</a> & <a href="https://twitter.com/maxdec">@maxdec</a>.</p>
             </div>
           </div>
 
@@ -47,6 +85,11 @@
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-route.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-resource.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-sanitize.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-animate.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-touch.min.js"></script>
     <script src="/jukebox.js"></script>
   </body>
 </html>
