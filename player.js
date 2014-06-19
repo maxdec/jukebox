@@ -2,33 +2,15 @@
 
 var lame = require('lame');
 var Speaker = require('speaker');
-var unirest = require('unirest');
 var https = require('https');
 var ytdl = require('ytdl');
 var ffmpeg = require('fluent-ffmpeg');
 var Q = require('q');
-var urlParser = require('url');
-
-function resolveSoundcloud(trackUrl) {
-  var deferred = Q.defer();
-
-  unirest.get('https://api.soundcloud.com/resolve.json')
-  .query({
-    client_id: 'e3a269fc6e454e830d57b8f19a39adf3',
-    url: trackUrl
-  })
-  .end(function (response) {
-    var streamUrl = response.body.stream_url;
-    streamUrl += '?client_id=e3a269fc6e454e830d57b8f19a39adf3';
-    deferred.resolve(streamUrl);
-  });
-
-  return deferred.promise;
-}
+var credentials = require('./credentials');
 
 function playSoundcloud(streamUrl) {
   var deferred = Q.defer();
-
+  streamUrl += '?client_id=' + credentials.soundcloud.client_id;
   var req = https.get(streamUrl, function (res) {
     if (res.statusCode > 300 && res.statusCode < 400 && res.headers.location) {
       return deferred.resolve(playSoundcloud(res.headers.location));
@@ -109,16 +91,11 @@ function playYoutube(trackUrl) {
   return deferred.promise;
 }
 
-exports.play = function play(urlStr) {
-  var url = urlParser.parse(urlStr, true, true);
-
-  if (url.hostname.indexOf('soundcloud.com') > -1) {
-    return resolveSoundcloud(urlStr)
-    .then(function (streamUrl) {
-      return playSoundcloud(streamUrl);
-    });
-  } else if (url.hostname.indexOf('youtube.com') > -1) {
-    return playYoutube(urlStr);
+exports.play = function play(track) {
+  if (track.platform === 'soundcloud') {
+    return playSoundcloud(track.streamUrl);
+  } else if (track.platform === 'youtube') {
+    return playYoutube(track.streamUrl);
   } else {
     return Q.fcall(function () {
       throw new Error('Wrong URL or domain not supported.');

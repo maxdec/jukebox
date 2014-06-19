@@ -2,7 +2,12 @@
 
 var redis = require('redis').createClient();
 var Q = require('q');
-var key = 'tracklist';
+var Track = require('./track.js');
+var keys = {
+  tracklist: 'jukebox:tracklist',
+  history: 'jukebox:history',
+  current: 'jukebox:current'
+};
 
 var examples = [
   'https://soundcloud.com/ghoststoriesmixtape/ghost-stories-ghostface',
@@ -20,7 +25,7 @@ exports.examples = function () {
  */
 exports.clear = function () {
   var deferred = Q.defer();
-  redis.del(key, function (err) {
+  redis.del(keys.tracklist, function (err) {
     if (err) return deferred.reject(err);
     deferred.resolve();
   });
@@ -34,7 +39,7 @@ exports.clear = function () {
 exports.fillWithExamples = function () {
   var deferred = Q.defer();
 
-  redis.rpush([key].concat(examples), function (err) {
+  redis.rpush([keys.tracklist].concat(examples), function (err) {
     if (err) return deferred.reject(err);
     return deferred.resolve();
   });
@@ -47,9 +52,11 @@ exports.fillWithExamples = function () {
  */
 exports.get = function () {
   var deferred = Q.defer();
-  redis.lrange(key, 0, -1, function (err, list) {
+  redis.lrange(keys.tracklist, 0, -1, function (err, list) {
     if (err) return deferred.reject(err);
-    return deferred.resolve(list);
+    return deferred.resolve(list.map(function (trackStr) {
+      return new Track(JSON.parse(trackStr));
+    }));
   });
 
   return deferred.promise;
@@ -60,9 +67,10 @@ exports.get = function () {
  */
 exports.first = function () {
   var deferred = Q.defer();
-  redis.lindex(key, 0, function (err, first) {
+  redis.lindex(keys.tracklist, 0, function (err, first) {
     if (err) return deferred.reject(err);
-    return deferred.resolve(first);
+    if (!first) return deferred.resolve();
+    return deferred.resolve(new Track(JSON.parse(first)));
   });
 
   return deferred.promise;
@@ -71,11 +79,62 @@ exports.first = function () {
 /**
  * Append a track to the tracklist
  */
-exports.add = function (trackUrl) {
+exports.add = function (track) {
   var deferred = Q.defer();
-  redis.rpush(key, trackUrl, function (err) {
+  redis.rpush(keys.tracklist, JSON.stringify(track), function (err) {
     if (err) return deferred.reject(err);
-    return deferred.resolve();
+    return deferred.resolve(track);
+  });
+
+  return deferred.promise;
+};
+
+/**
+ * Get the currently played track from the tracklist
+ */
+exports.current = function () {
+  var deferred = Q.defer();
+  redis.get(keys.current, function (err, current) {
+    if (err) return deferred.reject(err);
+    if (!current) return deferred.resolve();
+    return deferred.resolve(new Track(JSON.parse(current)));
+  });
+
+  return deferred.promise;
+};
+
+/**
+ * Play the next track
+ */
+exports.next = function () {
+  var deferred = Q.defer();
+  redis.lpop(keys.tracklist, function (err, nextTrack) {
+    if (err) return deferred.reject(err);
+    if (!nextTrack) return deferred.resolve();
+    nextTrack = new Track(JSON.parse(nextTrack));
+    nextTrack.playedAt = new Date();
+    redis.getset(keys.current, JSON.stringify(nextTrack), function (err, prevTrack) {
+      if (err) return deferred.reject(err);
+      if (prevTrack) {
+        redis.rpush(keys.history, prevTrack);
+      }
+      return deferred.resolve(nextTrack);
+    });
+  });
+
+  return deferred.promise;
+};
+
+/**
+ * Get the history of played tracks
+ */
+exports.history = function () {
+  var deferred = Q.defer();
+  redis.lrange(keys.history, 0, -1, function (err, list) {
+    if (err) return deferred.reject(err);
+    return deferred.resolve(list.map(function (trackStr) {
+      return new Track(JSON.parse(trackStr));
+    }));
   });
 
   return deferred.promise;

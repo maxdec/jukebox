@@ -5,11 +5,14 @@ var player = require('./player');
 
 function loop() {
   console.log('loop!');
-  tracklist.first()
-  .then(function (trackUrl) {
-    if (!trackUrl) return setTimeout(loop, 1000);
-    console.log('PLAY', trackUrl);
-    return player.play(trackUrl)
+  tracklist.current()
+  .then(function (track) {
+    if (!track) return setTimeout(loop, 1000);
+    console.log('PLAY', track.title);
+    return player.play(track)
+    .then(function () {
+      return tracklist.next();
+    })
     .then(function () {
       setTimeout(loop, 1000);
     });
@@ -21,10 +24,4 @@ function loop() {
   });
 }
 
-tracklist.clear()
-.then(function () {
-  return;// tracklist.fillWithExamples();
-})
-.then(function () {
-  loop();
-});
+loop();
