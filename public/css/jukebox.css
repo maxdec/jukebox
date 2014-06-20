@@ -102,6 +102,21 @@ body {
   font-weight: bold;
 }
 
+.tracklist input::-webkit-input-placeholder {
+  color: #aaa;
+}
+
+.tracklist input:-moz-placeholder { /* Firefox 18- */
+  color: #aaa;
+}
+
+.tracklist input::-moz-placeholder {  /* Firefox 19+ */
+  color: #aaa;
+}
+
+.tracklist input:-ms-input-placeholder {
+  color: #aaa;
+}
 
 /*
 * Footer
