@@ -93,6 +93,8 @@ body {
   text-align: center;
 }
 .cover img {
+  width: 300px;
+  height: 300px;
   box-shadow: 0 0 3px #222;
 }
 .cover .btn-lg {
