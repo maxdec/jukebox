@@ -13,6 +13,9 @@ angular.module('jukebox', [
 
 .config(['$routeProvider', '$locationProvider',
 function ($routeProvider,   $locationProvider) {
-  $locationProvider.html5Mode(true);
   $locationProvider.hashPrefix('!');
+  $routeProvider.
+    when('/playing', {templateUrl: 'playing.html',   controller: 'PlayingCtrl'}).
+    when('/history', {templateUrl: 'history.html',   controller: 'HistoryCtrl'}).
+    otherwise({redirectTo: '/playing'});
 }]);

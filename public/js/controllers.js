@@ -4,8 +4,32 @@
  */
 
 angular.module('jukebox')
-.controller('MainCtrl', ['$scope', 'Tracks', 'Player',
-                function ($scope,   Tracks,   Player) {
+.controller('MainCtrl', ['$scope', '$location', 'Player',
+                function ($scope,   $location,   Player) {
+  $scope.$location = $location;
+
+  $scope.play = function () {
+    Player.play().$promise.then(function () {
+      $scope.playing = true;
+    });
+  };
+
+  $scope.pause = function () {
+    Player.pause().$promise.then(function () {
+      $scope.playing = false;
+    });
+  };
+
+  function setPlaying() {
+    Player.get().$promise.then(function (resp) {
+      $scope.playing = resp.playing;
+    });
+  }
+  setPlaying();
+}])
+
+.controller('PlayingCtrl', ['$scope', 'Tracks',
+                   function ($scope,   Tracks) {
   $scope.tracks = [];
 
   Tracks.query().$promise
@@ -38,24 +62,12 @@ angular.module('jukebox')
     });
     $scope.newTrack = null;
   };
+}])
 
-  $scope.playing = false;
-
-  $scope.play = function () {
-    Player.play().$promise.then(function () {
-      $scope.playing = true;
-    });
-  };
-
-  $scope.pause = function () {
-    Player.pause().$promise.then(function () {
-      $scope.playing = false;
-    });
-  };
-
-  // function setPlaying() {
-  //   Player.get().then(function (resp) {
-  //     $scope.playing = resp.playing;
-  //   });
-  // }
+.controller('HistoryCtrl', ['$scope', 'Tracks',
+                   function ($scope,   Tracks) {
+  Tracks.history().$promise
+  .then(function (list) {
+    $scope.history = list;
+  });
 }]);
