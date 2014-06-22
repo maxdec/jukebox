@@ -51,6 +51,8 @@ module.exports = function (app) {
   app.post('/tracks/next', function (req, res) {
     tracklist.next()
     .then(function (track) {
+      wManager.stop();
+      wManager.start();
       res.send(track);
     }, function (err) {
       res.send(500, err.message);
