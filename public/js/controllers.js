@@ -4,9 +4,10 @@
  */
 
 angular.module('jukebox')
-.controller('MainCtrl', ['$scope', '$location', 'Player',
-                function ($scope,   $location,   Player) {
+.controller('MainCtrl', ['$scope', '$location', 'Player', 'socket',
+                function ($scope,   $location,   Player,   socket) {
   $scope.$location = $location;
+  socket.init();
 
   $scope.play = function () {
     Player.play().$promise.then(function () {
@@ -28,9 +29,21 @@ angular.module('jukebox')
   setPlaying();
 }])
 
-.controller('PlayingCtrl', ['$scope', 'Tracks',
-                   function ($scope,   Tracks) {
+.controller('PlayingCtrl', ['$scope', 'Tracks', 'socket',
+                   function ($scope,   Tracks,   socket) {
   $scope.tracks = [];
+  $scope.progression = {
+    width: '0%'
+  };
+
+  socket.on('progression', function (progression) {
+    $scope.progression.width = progression + '%';
+  });
+
+  socket.on('play', function (track) {
+    $scope.currentTrack = track;
+    // $scope.tracks.shift();
+  });
 
   Tracks.query().$promise
   .then(function (list) {

@@ -1,6 +1,8 @@
 'use strict';
 
 var cp = require('child_process');
+var io = require('./socket')();
+var tracklist = require('./tracklist');
 var worker;
 var state = {
   playing: false,
@@ -35,6 +37,13 @@ function attachEvents() {
 
   worker.on('message', function (m) {
     console.log('Message from Worker:', m);
+    if (m.type === 'progression') {
+      io.emit('progression', m.msg);
+    } else if (m.type === 'play') {
+      tracklist.current().then(function (track) {
+        io.emit('play', track);
+      });
+    }
   });
 }
 

@@ -20,7 +20,10 @@ function playSoundcloud(streamUrl) {
     var currentLength = 0;
     res.on('data', function (data) {
       currentLength += data.length;
-      console.log('Progress: ', Math.round(100 * currentLength/totalLength), '%');
+      process.send({
+        type: 'progression',
+        msg: Math.round(100 * currentLength/totalLength)
+      });
     });
 
     res.pipe(new lame.Decoder())
@@ -46,11 +49,14 @@ function playYoutube(trackUrl) {
   });
   stream
   .on('error', function (err) {
-    console.log('ERR YTLD', err);
+    process.send({
+      type: 'error',
+      msg: err
+    });
     deferred.reject(err);
   })
   .on('end', function () {
-    console.log('END YTLD');
+
   });
 
   var lameStream = new lame.Decoder();
@@ -59,18 +65,15 @@ function playYoutube(trackUrl) {
   .on('format', function (format) {
     speaker = new Speaker(format);
     speaker.on('close', function () {
-      console.log('END SPEAKER');
       deferred.resolve();
     });
     this.pipe(speaker);
   })
   .on('error', function (err) {
-    // this.end();
     speaker.end();
     deferred.reject(err);
   })
   .on('end', function () {
-    console.log('END LAME');
     speaker.end();
   });
 
@@ -79,12 +82,15 @@ function playYoutube(trackUrl) {
     .withAudioCodec('libmp3lame')
     .toFormat('mp3')
     .on('error', function (err) {
-      console.log('ERR FFMPEG', err);
+      process.send({
+        type: 'error',
+        msg: err
+      });
       // this.kill('SIGSTOP');
       deferred.reject(err);
     })
     .on('end', function () {
-      console.log('END FFMPEG');
+
     })
     .writeToStream(lameStream, { end: true });
 
