@@ -102,6 +102,12 @@ body {
   font-weight: bold;
 }
 
+.cover .progress {
+  width: 300px;
+  height: 4px;
+  margin: auto;
+}
+
 .tracklist input::-webkit-input-placeholder {
   color: #aaa;
 }
