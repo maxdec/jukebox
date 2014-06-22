@@ -83,4 +83,8 @@ angular.module('jukebox')
   .then(function (list) {
     $scope.history = list;
   });
+
+  $scope.addTrack = function (url) {
+    Tracks.save({ url: url });
+  };
 }]);

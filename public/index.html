@@ -136,6 +136,7 @@
                 <th>Artist</th>
                 <th>Duration</th>
                 <th>Link</th>
+                <th>Again</th>
               </tr>
             </thead>
             <tbody>
@@ -144,7 +145,8 @@
                 <td ng-bind="track.title"></td>
                 <td ng-bind="track.artist"></td>
                 <td ng-bind="track.duration | duration"></td>
-                <td><a ng-href="{{track.url}}" target="_blank"><i class="fa fa-external-link"></i></td>
+                <td><a ng-href="{{track.url}}" target="_blank"><i class="fa fa-fw fa-external-link"></i></td>
+                <td><a href ng-click="addTrack(track.url)"><i class="fa fa-fw fa-reply fa-flip-vertical"></i></td>
               </tr>
             </tbody>
           </table>
