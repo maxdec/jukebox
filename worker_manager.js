@@ -13,19 +13,16 @@ function start() {
   console.log('Worker started.');
   worker = cp.fork('./worker');
   attachEvents();
-  state.playing = true;
 }
 
 function stop() {
   worker.kill();
-  state.playing = false;
 }
 
 function attachEvents() {
   worker.on('error', function (err) {
-    worker.kill();
-    state.playing = false;
     console.log('Worker Error:', err);
+    stop();
     if (state.auto) start();
   });
 
@@ -36,6 +33,7 @@ function attachEvents() {
   });
 
   worker.on('message', function (m) {
+    state.playing = true;
     console.log('Message from Worker:', m);
     if (m.type === 'progression') {
       io.emit('progression', m.msg);
