@@ -29,8 +29,8 @@ angular.module('jukebox')
   setPlaying();
 }])
 
-.controller('PlayingCtrl', ['$scope', 'Tracks', 'socket',
-                   function ($scope,   Tracks,   socket) {
+.controller('PlayingCtrl', ['$scope', '$window', 'Tracks', 'socket',
+                   function ($scope,   $window,   Tracks,   socket) {
   $scope.tracks = [];
   $scope.progression = {
     width: '0%'
@@ -75,16 +75,30 @@ angular.module('jukebox')
     });
     $scope.newTrack = null;
   };
+
+  $scope.openExt = function (url) {
+    $window.open(url, '_blank');
+  };
 }])
 
-.controller('HistoryCtrl', ['$scope', 'Tracks',
-                   function ($scope,   Tracks) {
+.controller('HistoryCtrl', ['$scope', '$window', '$alert', 'Tracks',
+                   function ($scope,   $window,   $alert,   Tracks) {
   Tracks.history().$promise
   .then(function (list) {
     $scope.history = list;
   });
 
-  $scope.addTrack = function (url) {
-    Tracks.save({ url: url });
+  $scope.addTrack = function (track) {
+    Tracks.save({ url: track.url }).$promise
+    .then(function () {
+      $alert({
+        title: 'Track added',
+        content: track.title
+      });
+    });
+  };
+
+  $scope.openExt = function (url) {
+    $window.open(url, '_blank');
   };
 }]);

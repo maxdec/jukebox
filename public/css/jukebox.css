@@ -108,6 +108,28 @@ body {
   margin: auto;
 }
 
+/**
+ * Tracklist
+ */
+.tracklist tr {
+  cursor: pointer;
+}
+
+.tracklist td > a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+.tracklist tr .fa-external-link {
+  display: none;
+}
+
+.tracklist tr:hover .fa-external-link {
+  display: inline;
+}
+
 .tracklist input::-webkit-input-placeholder {
   color: #aaa;
 }

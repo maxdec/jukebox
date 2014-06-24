@@ -9,6 +9,7 @@
     <!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.1.1/superhero/bootstrap.min.css">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="//rawgit.com/mgcrea/bootstrap-additions/master/dist/bootstrap-additions.min.css" rel="stylesheet">
     <link href="/css/jukebox.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="/jukebox.png">
   </head>
@@ -51,6 +52,9 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-sanitize.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-animate.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-touch.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.0.0/angular-strap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.0.0/angular-strap.tpl.min.js"></script>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/app.js"></script>
     <script src="/js/tracks.js"></script>
@@ -59,7 +63,7 @@
     <script src="/js/duration.js"></script>
     <script src="/js/socket.js"></script>
 
-    <script type="text/ng-template" id="playing.html">
+    <script type="text/ng-template" id="playing">
       <div class="row">
         <div class="col-xs-12">
           <div class="inner cover" ng-show="currentTrack.title">
@@ -97,19 +101,19 @@
                 <th>Title</th>
                 <th>Artist</th>
                 <th>Duration</th>
-                <th>Link</th>
+                <th><i class="fa fa-fw"></i></th>
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat="track in tracks">
+              <tr ng-repeat="track in tracks" ng-click="openExt(track.url)">
                 <td ng-bind="$index + 1"></td>
                 <td ng-bind="track.title"></td>
                 <td ng-bind="track.artist"></td>
                 <td ng-bind="track.duration | duration"></td>
-                <td><a ng-href="{{track.url}}" target="_blank"><i class="fa fa-external-link"></i></td>
+                <td><i class="fa fa-external-link"></i></td>
               </tr>
               <tr>
-                <td colspan="5">
+                <td colspan="4">
                   <form ng-submit="addTrack()">
                     <div class="input-group">
                       <span class="input-group-addon"><i class="fa fa-plus"></i></span>
@@ -124,7 +128,7 @@
       </div>
     </script>
 
-    <script type="text/ng-template" id="history.html">
+    <script type="text/ng-template" id="history">
       <div class="row tracklist">
         <div class="col-md-6 col-md-offset-3">
           <h3><i class="fa fa-music"></i> History</h3>
@@ -135,22 +139,31 @@
                 <th>Title</th>
                 <th>Artist</th>
                 <th>Duration</th>
-                <th>Link</th>
                 <th>Again</th>
+                <th><i class="fa fa-fw"></i></th>
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat="track in history">
+              <tr ng-repeat="track in history" ng-click="openExt(track.url)">
                 <td ng-bind="track.playedAt | date:'dd/MM @ HH:mm'"></td>
                 <td ng-bind="track.title"></td>
                 <td ng-bind="track.artist"></td>
                 <td ng-bind="track.duration | duration"></td>
-                <td><a ng-href="{{track.url}}" target="_blank"><i class="fa fa-fw fa-external-link"></i></td>
-                <td><a href ng-click="addTrack(track.url)"><i class="fa fa-fw fa-reply fa-flip-vertical"></i></td>
+                <td><a href ng-click="addTrack(track);$event.stopPropagation()"><i class="fa fa-fw fa-reply fa-flip-vertical"></i></td>
+                <td><i class="fa fa-fw fa-external-link"></i></td>
               </tr>
             </tbody>
           </table>
         </div>
+      </div>
+    </script>
+
+
+    <script type="text/ng-template" id="alert-info">
+      <div class="alert alert-dismissable" tabindex="-1" ng-class="[type ? 'alert-' + type : null]">
+        <button type="button" class="close" ng-click="$hide()">&times;</button>
+        <h4 ng-bind="title"></h4>
+        <span ng-bind-html="content"></span>
       </div>
     </script>
   </body>
