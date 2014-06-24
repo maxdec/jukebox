@@ -10,7 +10,8 @@ require('./socket')(http);
 
 app.use(express.static(__dirname + '/public'));
 app.use(logger('dev'));
-app.use(bodyParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.set('views', __dirname + '/public');
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
