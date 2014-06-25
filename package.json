@@ -24,5 +24,8 @@
     "speaker": "^0.1.0",
     "unirest": "^0.2.7",
     "ytdl": "^0.2.8"
+  },
+  "devDependencies": {
+    "heapdump": "^0.2.9"
   }
 }
