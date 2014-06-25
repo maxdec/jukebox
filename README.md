@@ -38,6 +38,21 @@ Then open your browser at `http://localhost:3000`.
 - History of played tracks
 - Mobile friendly
 
+## Screenshots
+
+Main view:
+
+![Player](https://github.com/maxdec/jukebox/raw/master/images/playing.png)
+
+History:
+
+![History](https://github.com/maxdec/jukebox/raw/master/images/history.png)
+
+On mobile:
+
+![Mobile](https://github.com/maxdec/jukebox/raw/master/images/mobile.png)
+
+
 ## What's next?
 
 - YouTube URLs
