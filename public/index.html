@@ -59,6 +59,7 @@
     <script src="/js/app.js"></script>
     <script src="/js/tracks.js"></script>
     <script src="/js/player.js"></script>
+    <script src="/js/votes.js"></script>
     <script src="/js/controllers.js"></script>
     <script src="/js/duration.js"></script>
     <script src="/js/socket.js"></script>
@@ -76,7 +77,7 @@
             <h2 class="cover-heading" ng-bind="currentTrack.title"></h2>
             <p class="lead">{{currentTrack.artist}} • {{currentTrack.duration | duration}}</p>
             <p class="lead">
-              <a href class="btn btn-default" ng-click="next()"><i class="fa fa-fast-forward"></i> Skip</a>
+              <a href class="btn btn-default" ng-click="voteNext()"><i class="fa fa-fast-forward"></i> {{votes.favorable}}/{{votes.total}}</a>
             </p>
           </div>
           <div class="inner cover" ng-show="currentTrack && !currentTrack.title">

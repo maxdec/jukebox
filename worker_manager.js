@@ -3,23 +3,34 @@
 var cp = require('child_process');
 var socket = require('./socket')();
 var tracklist = require('./tracklist');
+var redis = require('redis').createClient();
 var worker;
 var state = {
   playing: false,
   auto: false // auto-reload a dead worker
 };
+var minVotes = 3;
 
 function start() {
-  console.log('Worker started.');
   worker = cp.fork('./worker');
-  attachEvents();
+  _attachEvents();
 }
 
 function stop() {
   worker.kill();
 }
 
-function attachEvents() {
+function checkVotesNext() {
+  redis.scard('jukebox:votes', function (err, count) {
+    if (err) return console.log(err);
+    if (count < minVotes) return;
+    tracklist.next();
+    stop();
+    start();
+  });
+}
+
+function _attachEvents() {
   worker.on('error', function (err) {
     console.log('Worker Error:', err);
     stop();
@@ -51,4 +62,5 @@ module.exports = {
   stop: stop,
   state: function () { return state; },
   setAuto: function (bool) { state.auto = bool; },
+  checkVotesNext: checkVotesNext
 };

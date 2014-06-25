@@ -29,11 +29,15 @@ angular.module('jukebox')
   setPlaying();
 }])
 
-.controller('PlayingCtrl', ['$scope', '$window', 'Tracks', 'socket',
-                   function ($scope,   $window,   Tracks,   socket) {
+.controller('PlayingCtrl', ['$scope', '$window', 'Tracks', 'socket', 'Votes',
+                   function ($scope,   $window,   Tracks,   socket,   Votes) {
   $scope.tracks = [];
   $scope.progression = {
     width: '0%'
+  };
+  $scope.votes = {
+    favorable: 0,
+    total: 3
   };
 
   socket.on('progression', function (progression) {
@@ -42,7 +46,10 @@ angular.module('jukebox')
 
   socket.on('play', function (track) {
     $scope.currentTrack = track;
-    // $scope.tracks.shift();
+    $scope.tracks.shift();
+    $scope.votes.favorable = 0;
+  });
+
   socket.on('new track', function (track) {
     $scope.tracks.push(track);
   });
@@ -62,6 +69,15 @@ angular.module('jukebox')
     $scope.history = list;
   });
 
+  Votes.get().$promise
+  .then(function (votes) {
+    $scope.votes = votes;
+  });
+
+  socket.on('new vote', function (count) {
+    $scope.votes.favorable += count;
+  });
+
   $scope.next = function () {
     Tracks.next().$promise
     .then(function (track) {
@@ -77,6 +93,10 @@ angular.module('jukebox')
 
   $scope.openExt = function (url) {
     $window.open(url, '_blank');
+  };
+
+  $scope.voteNext = function () {
+    Votes.save();
   };
 }])
 

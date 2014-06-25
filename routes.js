@@ -4,6 +4,9 @@ var tracklist = require('./tracklist');
 var resolver = require('./resolver');
 var wManager = require('./worker_manager');
 var socket = require('./socket')();
+var redis = require('redis').createClient();
+var crypto = require('crypto');
+var minVotes = 3;
 
 module.exports = function (app) {
   app.get('/player', function (req, res) {
@@ -67,6 +70,29 @@ module.exports = function (app) {
       res.send(list);
     }, function (err) {
       res.send(500, err.message);
+    });
+  });
+
+  app.get('/votes', function (req, res) {
+    redis.scard('jukebox:votes', function (err, count) {
+      if (err) return res.send(500, err);
+      res.send({
+        favorable: count,
+        total: minVotes
+      });
+    });
+  });
+
+  app.post('/votes', function (req, res) {
+    var ua = req.headers['user-agent'];
+    var hash = crypto.createHash('md5').update(ua).digest('hex');
+    redis.sadd('jukebox:votes', hash, function (err, newCount) {
+      if (err) return res.send(500, err);
+      res.send(201);
+      if (newCount > 0) {
+        socket.emit('new vote', newCount);
+        wManager.checkVotesNext();
+      }
     });
   });
 };

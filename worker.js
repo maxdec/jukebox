@@ -6,7 +6,11 @@ var player = require('./player');
 function loop() {
   tracklist.current()
   .then(function (track) {
-    if (!track) return setTimeout(loop, 1000);
+    if (!track) {
+      tracklist.next();
+      return setTimeout(loop, 1000);
+    }
+
     process.send({
       type: 'play',
       msg: track.title

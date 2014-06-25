@@ -132,6 +132,8 @@ exports.next = function () {
       if (prevTrack) {
         redis.rpush(keys.history, prevTrack);
       }
+      // Clear the votes
+      redis.del('jukebox:votes');
       return deferred.resolve(nextTrack);
     });
   });
