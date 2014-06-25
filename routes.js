@@ -3,6 +3,7 @@
 var tracklist = require('./tracklist');
 var resolver = require('./resolver');
 var wManager = require('./worker_manager');
+var socket = require('./socket')();
 
 module.exports = function (app) {
   app.get('/player', function (req, res) {
@@ -33,6 +34,7 @@ module.exports = function (app) {
     resolver.resolve(req.body.url)
     .then(tracklist.add)
     .then(function (track) {
+      socket.emit('new track', track);
       res.send(201, track);
     }, function (err) {
       res.send(500, err.message);

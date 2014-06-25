@@ -43,6 +43,8 @@ angular.module('jukebox')
   socket.on('play', function (track) {
     $scope.currentTrack = track;
     // $scope.tracks.shift();
+  socket.on('new track', function (track) {
+    $scope.tracks.push(track);
   });
 
   Tracks.query().$promise
@@ -69,10 +71,7 @@ angular.module('jukebox')
   };
 
   $scope.addTrack = function () {
-    Tracks.save({ url: $scope.newTrack }).$promise
-    .then(function (track) {
-      $scope.tracks.push(track);
-    });
+    Tracks.save({ url: $scope.newTrack });
     $scope.newTrack = null;
   };
 
