@@ -16,6 +16,7 @@ function Track(fullTrack) {
   this.platform = fullTrack.platform || detectPlatform(fullTrack.stream_url);
   this.createdAt = new Date();
   this.playedAt = fullTrack.playedAt;
+  this.position = fullTrack.position;
 }
 
 function detectPlatform(urlStr) {

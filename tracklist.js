@@ -103,6 +103,20 @@ exports.current = function () {
   return deferred.promise;
 };
 
+exports.setCurrentPosition = function (pos) {
+  var deferred = Q.defer();
+  redis.get(keys.current, function (err, current) {
+    if (err) return deferred.reject(err);
+    if (!current) return deferred.resolve();
+    current = JSON.parse(current);
+    current.position = pos;
+    redis.set(keys.current, JSON.stringify(current));
+    return deferred.resolve();
+  });
+
+  return deferred.promise;
+};
+
 /**
  * Play the next track
  */

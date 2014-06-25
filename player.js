@@ -6,23 +6,42 @@ var https = require('https');
 var ytdl = require('ytdl');
 var ffmpeg = require('fluent-ffmpeg');
 var Q = require('q');
+var url = require('url');
 var credentials = require('./credentials');
 
-function playSoundcloud(streamUrl) {
+var regexRange = new RegExp(/bytes (\d+)-(\d+)\/(\d+)/);
+
+function playSoundcloud(streamUrl, position) {
   var deferred = Q.defer();
   streamUrl += '?client_id=' + credentials.soundcloud.client_id;
-  var req = https.get(streamUrl, function (res) {
+  var parsedUrl = url.parse(streamUrl);
+  var options = {
+    hostname: parsedUrl.hostname,
+    path: parsedUrl.path,
+    headers: {}
+  };
+
+  if (position) {
+    options.headers.Range = ['bytes=', position, '-'].join('');
+  } else {
+    options.headers.Range = 'bytes=0-';
+  }
+
+  var req = https.get(options, function (res) {
     if (res.statusCode > 300 && res.statusCode < 400 && res.headers.location) {
-      return deferred.resolve(playSoundcloud(res.headers.location));
+      return deferred.resolve(playSoundcloud(res.headers.location, position));
     }
 
-    var totalLength = parseInt(res.headers['content-length'], 10);
-    var currentLength = 0;
+    // Content-Range: bytes 20962036-61451700/61451701
+    var splits = regexRange.exec(res.headers['content-range']);
+    var totalLength = parseInt(splits[3], 10);
+    var currentLength = parseInt(splits[1], 10);
     res.on('data', function (data) {
       currentLength += data.length;
       process.send({
         type: 'progression',
-        msg: Math.round(100 * currentLength/totalLength)
+        current: currentLength,
+        total: totalLength
       });
     });
 
@@ -99,7 +118,7 @@ function playYoutube(trackUrl) {
 
 exports.play = function play(track) {
   if (track.platform === 'soundcloud') {
-    return playSoundcloud(track.streamUrl);
+    return playSoundcloud(track.streamUrl, track.position);
   } else if (track.platform === 'youtube') {
     return playYoutube(track.streamUrl);
   } else {
