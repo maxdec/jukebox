@@ -111,10 +111,10 @@
                 <td ng-bind="track.title"></td>
                 <td ng-bind="track.artist"></td>
                 <td ng-bind="track.duration | duration"></td>
-                <td><i class="fa fa-external-link"></i></td>
+                <td><i class="fa fa-fw" ng-class="{'fa-soundcloud': track.platform === 'soundcloud', 'fa-youtube-play': track.platform === 'youtube'}"></i></td>
               </tr>
               <tr>
-                <td colspan="4">
+                <td colspan="5">
                   <form ng-submit="addTrack()">
                     <div class="input-group">
                       <span class="input-group-addon"><i class="fa fa-plus"></i></span>
@@ -151,7 +151,7 @@
                 <td ng-bind="track.artist"></td>
                 <td ng-bind="track.duration | duration"></td>
                 <td><a href ng-click="addTrack(track);$event.stopPropagation()"><i class="fa fa-fw fa-reply fa-flip-vertical"></i></td>
-                <td><i class="fa fa-fw fa-external-link"></i></td>
+                <td><i class="fa fa-fw" ng-class="{'fa-soundcloud': track.platform === 'soundcloud', 'fa-youtube-play': track.platform === 'youtube'}"></i></td>
               </tr>
             </tbody>
           </table>
