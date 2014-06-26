@@ -145,7 +145,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat="track in history" ng-click="openExt(track.url)">
+              <tr ng-repeat="track in history | orderBy: '-playedAt'" ng-click="openExt(track.url)">
                 <td ng-bind="track.playedAt | date:'dd/MM @ HH:mm'"></td>
                 <td ng-bind="track.title"></td>
                 <td ng-bind="track.artist"></td>
