@@ -1,7 +1,7 @@
 jukebox
 =======
 
-Spotistic's Jukebox
+[Spotistic](https://spotistic.com)'s Jukebox
 
 A music player with a web interface for our Office.  
 Runs on a Raspberry Pi plugged to the speakers.  
