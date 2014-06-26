@@ -27,13 +27,29 @@ function resolveSoundcloud(trackUrl) {
   return deferred.promise;
 }
 
+function resolveYoutube(trackId) {
+  var deferred = Q.defer();
+
+  unirest.get('http://gdata.youtube.com/feeds/api/videos/' + trackId)
+  .query({
+    v: 2,
+    alt: 'json'
+  })
+  .end(function (response) {
+    var track = new Track(response.body.entry);
+    deferred.resolve(track);
+  });
+
+  return deferred.promise;
+}
+
 exports.resolve = function resolve(urlStr) {
   var url = urlParser.parse(urlStr, true, true);
 
   if (url.hostname.indexOf('soundcloud.com') > -1) {
     return resolveSoundcloud(urlStr);
   } else if (url.hostname.indexOf('youtube.com') > -1) {
-    return 'YouTube will be available soon.';
+    return resolveYoutube(url.query.v);
   } else {
     return Q.fcall(function () {
       throw new Error('Wrong URL or domain not supported.');

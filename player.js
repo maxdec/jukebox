@@ -4,12 +4,17 @@ var lame = require('lame');
 var Speaker = require('speaker');
 var https = require('https');
 var ytdl = require('ytdl');
-var ffmpeg = require('fluent-ffmpeg');
+var Transcoder = require('stream-transcoder');
 var Q = require('q');
 var url = require('url');
 var credentials = require('./credentials');
 
 var regexRange = new RegExp(/bytes (\d+)-(\d+)\/(\d+)/);
+var format = {
+  channels: 2,          // 2 channels
+  bitDepth: 16,         // 16-bit samples
+  sampleRate: 44100     // 44,100 Hz sample rate
+};
 
 function playSoundcloud(streamUrl, position) {
   var deferred = Q.defer();
@@ -36,8 +41,8 @@ function playSoundcloud(streamUrl, position) {
     var splits = regexRange.exec(res.headers['content-range']);
     var totalLength = parseInt(splits[3], 10);
     var currentLength = parseInt(splits[1], 10);
-    res.on('data', function (data) {
-      currentLength += data.length;
+    res.on('data', function (chunk) {
+      currentLength += chunk.length;
       process.send({
         type: 'progression',
         current: currentLength,
@@ -59,59 +64,61 @@ function playSoundcloud(streamUrl, position) {
   return deferred.promise;
 }
 
-function playYoutube(trackUrl) {
+/**
+ * Plays the sound of a Youtube video.
+ * It streams the content, removes the video
+ * and encode the sound into raw PCM (Speaker format)
+ *
+ * /!\ Resuming a video is (currently?) not possible.
+ * When using the `range` option Youtube just returns a chunk a data
+ * which is not recognized as a valid video.
+ * cf. https://github.com/fent/node-ytdl/issues/32
+ */
+function playYoutube(trackUrl, position) {
   var deferred = Q.defer();
+  var totalLength;
+  var currentLength = 0; //position || 0;
 
-  var stream = ytdl(trackUrl, {
+  var ytOpts = {
     quality: 'highest',
-    filter: function(format) { return format.container === 'mp4'; }
-  });
-  stream
-  .on('error', function (err) {
-    process.send({
-      type: 'error',
-      msg: err
-    });
-    deferred.reject(err);
-  })
-  .on('end', function () {
+    // filter: function(format) { return format.container === 'mp4'; }
+  };
+  if (position) ytOpts.range = position + '-';
 
-  });
-
-  var lameStream = new lame.Decoder();
-  var speaker;
-  lameStream
-  .on('format', function (format) {
-    speaker = new Speaker(format);
-    speaker.on('close', function () {
-      deferred.resolve();
-    });
-    this.pipe(speaker);
-  })
-  .on('error', function (err) {
-    speaker.end();
-    deferred.reject(err);
-  })
-  .on('end', function () {
-    speaker.end();
-  });
-
-  new ffmpeg({ source: stream })
-    .withNoVideo()
-    .withAudioCodec('libmp3lame')
-    .toFormat('mp3')
-    .on('error', function (err) {
+  var ytStream = ytdl(trackUrl, ytOpts);
+  ytStream
+    .on('info', function (_, format) {
+      totalLength = parseInt(format.size, 10);
+    })
+    .on('data', function (chunk) {
+      currentLength += chunk.length;
       process.send({
-        type: 'error',
-        msg: err
+        type: 'progression',
+        current: currentLength,
+        total: totalLength
       });
-      // this.kill('SIGSTOP');
+    })
+    .on('error', function (err) {
       deferred.reject(err);
     })
-    .on('end', function () {
+    .on('end', function () {});
 
+  var speaker = new Speaker(format);
+  speaker.on('close', function () {
+    deferred.resolve();
+  });
+
+  new Transcoder(ytStream)
+    .custom('vn')
+    .audioCodec('pcm_s16le')
+    .channels(format.channels)
+    .sampleRate(format.sampleRate)
+    .custom('sample_fmt', 's16') // format.bitDepth
+    .format('s16le')
+    .on('error', function (err) {
+      deferred.reject(err);
     })
-    .writeToStream(lameStream, { end: true });
+    .stream().pipe(speaker);
 
   return deferred.promise;
 }
@@ -120,6 +127,8 @@ exports.play = function play(track) {
   if (track.platform === 'soundcloud') {
     return playSoundcloud(track.streamUrl, track.position);
   } else if (track.platform === 'youtube') {
+    // /!\ It's actually not possible to resume Youtube for now.
+    // Read more in the `playYoutube` function description.
     return playYoutube(track.streamUrl);
   } else {
     return Q.fcall(function () {

@@ -3,17 +3,19 @@
 var urlParser = require('url');
 
 function Track(fullTrack) {
-  this.title = fullTrack.title;
+  this.title = fullTrack.title.$t || fullTrack.title;
   if (fullTrack.user) {
     this.artist = fullTrack.user.username;
+  } else if (fullTrack.author && fullTrack.author[0]) {
+    fullTrack.artist = fullTrack.author[0].name.$t;
   } else {
     this.artist = fullTrack.artist;
   }
-  this.duration = fullTrack.duration;
-  this.url = fullTrack.permalink_url || fullTrack.url;
-  this.streamUrl = fullTrack.stream_url || fullTrack.streamUrl;
-  this.cover = fullTrack.artwork_url || fullTrack.cover;
-  this.platform = fullTrack.platform || detectPlatform(fullTrack.stream_url);
+  this.duration = fullTrack.duration || fullTrack.media$group.yt$duration.seconds;
+  this.url = fullTrack.permalink_url || fullTrack.url || fullTrack.link[0].href;
+  this.streamUrl = fullTrack.stream_url || fullTrack.streamUrl || fullTrack.link[0].href;
+  this.cover = fullTrack.artwork_url || fullTrack.cover || fullTrack.media$group.media$thumbnail[1].url;
+  this.platform = fullTrack.platform || detectPlatform(this.url);
   this.createdAt = new Date();
   this.playedAt = fullTrack.playedAt;
   this.position = fullTrack.position;
