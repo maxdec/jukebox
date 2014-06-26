@@ -14,6 +14,12 @@ Real-time updates with [Socket.io](http://socket.io/).
 ## Installation
 This projects requires `nodejs/npm` and `redis` to be installed.
 
+You also need to have the `alsa.h` header and `ffmpeg`. On Debian/Ubuntu:
+
+```
+sudo apt-get install libasound2-dev ffmpeg
+```
+
 Clone and install the dependencies:
 
 ```
