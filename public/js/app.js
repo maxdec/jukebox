@@ -30,5 +30,10 @@ function ($routeProvider,   $locationProvider) {
   });
 }])
 .config(['$compileProvider', function ($compileProvider) {
+  /*
+    This is required to allow `javascript:` links (bookmarklet).
+    They are now disabled by default and appear as 'unsafe'.
+    cf. http://stackoverflow.com/questions/15637133/unsafe-link-in-angular
+  */
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/);
 }]);
