@@ -103,6 +103,9 @@ body {
   top: 7px;
   right: 10px;
 }
+.cover a:hover .fa-2x {
+  color: #d9534f;
+}
 .cover img {
   width: 100%;
   box-shadow: 0 0 3px #222;
