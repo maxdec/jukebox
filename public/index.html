@@ -69,21 +69,22 @@
         <div class="col-xs-12">
           <div class="inner cover" ng-show="currentTrack.title">
             <a ng-href="{{currentTrack.url}}" target="_blank">
+              <i class="fa fa-2x" ng-class="{'fa-soundcloud': currentTrack.platform === 'soundcloud', 'fa-youtube-play': currentTrack.platform === 'youtube'}"></i>
               <img ng-src="{{currentTrack.cover}}" alt="Cover">
+              <div class="progress">
+                <div class="progress-bar progress-bar-danger" ng-style="progression"></div>
+              </div>
             </a>
-            <div class="progress">
-              <div class="progress-bar progress-bar-danger" ng-style="progression"></div>
-            </div>
             <h2 class="cover-heading" ng-bind="currentTrack.title"></h2>
             <p class="lead">{{currentTrack.artist}} • {{currentTrack.duration | duration}}</p>
             <p class="lead">
-              <a href class="btn btn-default" ng-click="voteNext()"><i class="fa fa-fast-forward"></i> {{votes.favorable}}/{{votes.total}}</a>
+              <button class="btn btn-default" ng-click="voteNext()"><i class="fa fa-fast-forward"></i> {{votes.favorable}}/{{votes.total}}</button>
             </p>
           </div>
           <div class="inner cover" ng-show="currentTrack && !currentTrack.title">
             <h1 class="cover-heading">Nothing playing...</h1>
             <p class="lead">
-              <a href class="btn btn-default" ng-click="next()"><i class="fa fa-play"></i> Play</a>
+              <button class="btn btn-default" ng-click="next()"><i class="fa fa-play"></i> Play</button>
             </p>
           </div>
           <div class="inner cover" ng-hide="currentTrack">
