@@ -33,8 +33,11 @@ function playSoundcloud(streamUrl, position) {
   }
 
   var req = https.get(options, function (res) {
-    if (res.statusCode > 300 && res.statusCode < 400 && res.headers.location) {
+    if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
       return deferred.resolve(playSoundcloud(res.headers.location, position));
+    } else if (res.statusCode >= 400 ) {
+      // 404 or whatever, we skip
+      return deferred.resolve();
     }
 
     // Content-Range: bytes 20962036-61451700/61451701
