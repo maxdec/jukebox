@@ -11,7 +11,7 @@ function Track(fullTrack) {
   } else {
     this.artist = fullTrack.artist;
   }
-  this.duration = fullTrack.duration || fullTrack.media$group.yt$duration.seconds;
+  this.duration = fullTrack.duration || fullTrack.media$group.yt$duration.seconds * 1000;
   this.url = fullTrack.permalink_url || fullTrack.url || fullTrack.link[0].href;
   this.streamUrl = fullTrack.stream_url || fullTrack.streamUrl || fullTrack.link[0].href;
   this.cover = fullTrack.artwork_url || fullTrack.cover || fullTrack.media$group.media$thumbnail[1].url;
