@@ -6,6 +6,7 @@ var wManager = require('./worker_manager');
 var socket = require('./socket')();
 var redis = require('redis').createClient();
 var crypto = require('crypto');
+var volume = require('./volume');
 var minVotes = 3;
 
 var allowedMethods = 'GET,PUT,POST,DELETE,OPTIONS';
@@ -117,5 +118,13 @@ module.exports = function (app) {
         wManager.checkVotesNext();
       }
     });
+  });
+
+  app.post('/volume', function (req, res) {
+    if (!req.body.p) return res.send(400, 'You need to provide a percentage.');
+    var p = parseInt(req.body.p, 10);
+    if (p < 0 || p > 100) return res.send(400, 'Percentage value out of range.');
+    volume(p);
+    res.send(201);
   });
 };
