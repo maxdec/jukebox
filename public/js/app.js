@@ -28,4 +28,7 @@ function ($routeProvider,   $locationProvider) {
     template: 'alert-info',
     duration: 2,
   });
+}])
+.config(['$compileProvider', function ($compileProvider) {
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/);
 }]);

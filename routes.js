@@ -8,6 +8,27 @@ var redis = require('redis').createClient();
 var crypto = require('crypto');
 var minVotes = 3;
 
+var allowedMethods = 'GET,PUT,POST,DELETE,OPTIONS';
+var allowedHeaders = 'Content-Length,Content-Type';
+function allowCrossDomain(req, res, next) {
+  var allowedHosts = [
+    'http://soundcloud.com',
+    'https://soundcloud.com',
+    'http://youtube.com',
+    'https://youtube.com',
+    'http://www.youtube.com',
+    'https://www.youtube.com'
+  ];
+
+  if (allowedHosts.indexOf(req.headers.origin) !== -1) {
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', allowedMethods);
+    res.header('Access-Control-Allow-Headers', allowedHeaders);
+    if ('OPTIONS' === req.method) return res.send(200);
+  }
+  next();
+}
+
 module.exports = function (app) {
   app.get('/player', function (req, res) {
     res.send(wManager.state());
@@ -32,7 +53,9 @@ module.exports = function (app) {
     });
   });
 
-  app.post('/tracks', function (req, res) {
+  app.options('/tracks', allowCrossDomain);
+
+  app.post('/tracks', allowCrossDomain, function (req, res) {
     if (!req.body.url) return res.send(400, 'You need to provide a track URL.');
     resolver.resolve(req.body.url)
     .then(tracklist.add)
