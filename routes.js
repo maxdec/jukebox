@@ -108,9 +108,7 @@ module.exports = function (app) {
   });
 
   app.post('/votes', function (req, res) {
-    var ua = req.headers['user-agent'];
-    var hash = crypto.createHash('md5').update(ua).digest('hex');
-    redis.sadd('jukebox:votes', hash, function (err, newCount) {
+    redis.sadd('jukebox:votes', req.ip, function (err, newCount) {
       if (err) return res.send(500, err);
       res.send(201);
       if (newCount > 0) {
