@@ -41,9 +41,16 @@ function playSoundcloud(streamUrl, position) {
     }
 
     // Content-Range: bytes 20962036-61451700/61451701
-    var splits = regexRange.exec(res.headers['content-range']);
-    var totalLength = parseInt(splits[3], 10);
-    var currentLength = parseInt(splits[1], 10);
+    var totalLength, currentLength;
+    if (res.headers['content-range']) {
+      var splits = regexRange.exec(res.headers['content-range']);
+      totalLength = parseInt(splits[3], 10);
+      currentLength = parseInt(splits[1], 10);
+    } else {
+      totalLength = res.headers['content-length'];
+      currentLength = 0;
+    }
+
     res.on('data', function (chunk) {
       currentLength += chunk.length;
       process.send({
