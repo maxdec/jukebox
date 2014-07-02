@@ -5,7 +5,6 @@ var resolver = require('./resolver');
 var wManager = require('./worker_manager');
 var socket = require('./socket')();
 var redis = require('redis').createClient();
-var crypto = require('crypto');
 var volume = require('./volume');
 var minVotes = 3;
 
@@ -78,14 +77,11 @@ module.exports = function (app) {
   });
 
   app.post('/tracks/next', function (req, res) {
-    tracklist.next()
-    .then(function (track) {
-      wManager.stop();
+    wManager.stop();
+    tracklist.next().then(function () {
       wManager.start();
-      res.send(track);
-    }, function (err) {
-      res.send(500, err.message);
     });
+    res.send(201);
   });
 
   app.get('/tracks/history', function (req, res) {

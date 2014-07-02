@@ -6,7 +6,8 @@ var Track = require('./track.js');
 var keys = {
   tracklist: 'jukebox:tracklist',
   history: 'jukebox:history',
-  current: 'jukebox:current'
+  current: 'jukebox:current',
+  votes: 'jukebox:votes'
 };
 
 var examples = [
@@ -118,23 +119,38 @@ exports.setCurrentPosition = function (pos) {
 };
 
 /**
- * Play the next track
+ * Move the current track to the history.
+ * We do NOT move the next one to `current`,
+ * the worker will do it with `BLPOP`, which would block
+ * the current (server) redis connection otherwise.
  */
 exports.next = function () {
   var deferred = Q.defer();
-  redis.lpop(keys.tracklist, function (err, nextTrack) {
+  redis.get(keys.current, function (err, prevTrack) {
     if (err) return deferred.reject(err);
-    if (!nextTrack) return deferred.resolve();
-    nextTrack = new Track(JSON.parse(nextTrack));
+    if (prevTrack) redis.rpush(keys.history, prevTrack);
+    // Clear the votes and current song
+    redis.del(keys.votes);
+    redis.del(keys.current);
+    deferred.resolve();
+  });
+
+  return deferred.promise;
+};
+
+/**
+ * Handy method for the worker to wait for a next track.
+ */
+exports.waitForNext = function () {
+  var deferred = Q.defer();
+  redis.blpop(keys.tracklist, 0, function (err, res) {
+    if (err) return deferred.reject(err);
+    // Returns an array [key, value]
+    var nextTrack = new Track(JSON.parse(res[1]));
     nextTrack.playedAt = new Date();
-    redis.getset(keys.current, JSON.stringify(nextTrack), function (err, prevTrack) {
+    redis.set(keys.current, JSON.stringify(nextTrack), function (err) {
       if (err) return deferred.reject(err);
-      if (prevTrack) {
-        redis.rpush(keys.history, prevTrack);
-      }
-      // Clear the votes
-      redis.del('jukebox:votes');
-      return deferred.resolve(nextTrack);
+      deferred.resolve(nextTrack);
     });
   });
 

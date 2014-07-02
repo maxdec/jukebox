@@ -6,6 +6,7 @@ var tracklist = require('./tracklist');
 var redis = require('redis').createClient();
 var worker;
 var state = {
+  running: false,
   playing: false,
   auto: false // auto-reload a dead worker
 };
@@ -14,10 +15,11 @@ var minVotes = 3;
 function start() {
   worker = cp.fork('./worker');
   _attachEvents();
+  state.running = true;
 }
 
 function stop() {
-  worker.kill();
+  if (worker) worker.kill();
 }
 
 function checkVotesNext() {
@@ -37,8 +39,10 @@ function _attachEvents() {
     if (state.auto) start();
   });
 
-  worker.on('exit', function () {
+  worker.on('exit', function (code, sig) {
+    console.log('CHILD EXIT', code, sig);
     state.playing = false;
+    state.running = false;
     if (state.auto) start();
   });
 
@@ -51,6 +55,8 @@ function _attachEvents() {
       tracklist.current().then(function (track) {
         socket.emit('play', track);
       });
+    } else if (m.type === 'error') {
+      console.log(m.msg);
     } else {
       console.log('Message from Worker:', m);
     }

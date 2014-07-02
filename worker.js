@@ -3,33 +3,40 @@
 var tracklist = require('./tracklist');
 var player = require('./player');
 
+var retries = 0;
+var maxRetries = 3;
+
 function loop() {
+  console.log('LOOOP');
   tracklist.current()
   .then(function (track) {
-    if (!track) {
-      tracklist.next();
-      return setTimeout(loop, 1000);
-    }
+    if (!track) return tracklist.waitForNext().then(doLoop);
 
     process.send({
       type: 'play',
       msg: track.title
     });
     return player.play(track)
-    .then(function () {
-      return tracklist.next();
-    })
-    .then(function () {
-      setTimeout(loop, 1000);
-    });
+    .then(tracklist.next)
+    .then(doLoop);
   })
   .fail(function (err) {
     process.send({
       type: 'error',
-      msg: err
+      msg: err.toString()
     });
-    setTimeout(loop, 1000);
+
+    if (++retries >= maxRetries) {
+      retries = 0;
+      return tracklist.next().then(doLoop);
+    }
+
+    doLoop();
   });
 }
 
-loop();
+function doLoop() {
+  setImmediate(loop);
+}
+
+doLoop();
