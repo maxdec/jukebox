@@ -110,6 +110,8 @@ function playYoutube(trackUrl, position) {
     })
     .on('error', function (err) {
       deferred.reject(err);
+      ytStream.push(null);
+      speaker.close();
     })
     .on('end', function () {});
 
