@@ -7,7 +7,6 @@ var retries = 0;
 var maxRetries = 3;
 
 function loop() {
-  console.log('LOOOP');
   tracklist.current()
   .then(function (track) {
     if (!track) return tracklist.waitForNext().then(doLoop);

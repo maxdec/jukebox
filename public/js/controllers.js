@@ -36,7 +36,6 @@ angular.module('jukebox')
 
   $scope.$watch('volume', function (perc) {
     if (!perc) return;
-    console.log('Volume', perc);
     Volume.save({ perc: perc });
   });
 }])
