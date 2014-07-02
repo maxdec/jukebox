@@ -23,7 +23,7 @@
     "speaker": "^0.1.0",
     "stream-transcoder": "0.0.3",
     "unirest": "^0.2.7",
-    "ytdl": "^0.2.8"
+    "ytdl-core": "^0.1.0"
   },
   "devDependencies": {
     "heapdump": "^0.2.9"
