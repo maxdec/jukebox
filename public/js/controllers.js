@@ -4,8 +4,8 @@
  */
 
 angular.module('jukebox')
-.controller('MainCtrl', ['$scope', '$location', 'Player', 'socket',
-                function ($scope,   $location,   Player,   socket) {
+.controller('MainCtrl', ['$scope', '$location', 'Player', 'socket', 'Volume',
+                function ($scope,   $location,   Player,   socket,   Volume) {
   $scope.$location = $location;
   socket.init();
 
@@ -23,12 +23,22 @@ angular.module('jukebox')
 
   $scope.bookmarklet = 'javascript:(function(){var e=window.location.href;if(e.indexOf(\'soundcloud\')===-1&&e.indexOf(\'youtube\')===-1){return}var t=new XMLHttpRequest;var n=JSON.stringify({url:e});t.open(\'POST\',\'http://' + location.host + '/tracks\',true);t.setRequestHeader(\'Content-Type\',\'application/json\');t.send(n)})()';
 
+  Volume.get().$promise.then(function (vol) {
+    $scope.volume = vol.perc;
+  });
+
   function setPlaying() {
     Player.get().$promise.then(function (resp) {
       $scope.playing = resp.playing;
     });
   }
   setPlaying();
+
+  $scope.$watch('volume', function (perc) {
+    if (!perc) return;
+    console.log('Volume', perc);
+    Volume.save({ perc: perc });
+  });
 }])
 
 .controller('PlayingCtrl', ['$scope', '$window', 'Tracks', 'socket', 'Votes',

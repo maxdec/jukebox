@@ -51,6 +51,17 @@ body {
   margin-bottom: 10px;
   line-height: 50px;
 }
+.masthead .fa-music {
+  display: none;
+}
+@media (max-width: 767px) {
+  .masthead-brand {
+    display: none;
+  }
+  .masthead .fa-music {
+    display: block;
+  }
+}
 
 .masthead-nav > li {
   display: inline-block;
@@ -78,6 +89,21 @@ body {
 .masthead-nav > .active > a:focus {
   color: #fff;
   border-bottom-color: #fff;
+}
+
+.masthead-nav > li.volume {
+  padding: 0;
+  margin: 10px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff; /* IE8 proofing */
+  color: rgba(255,255,255,.75);
+  border-bottom: 2px solid transparent;
+}
+.masthead-nav > li.volume > .slider {
+  display: inline-block;
+  margin-bottom: -5px;
+  margin-left: 5px;
 }
 
 .input-group {
@@ -168,4 +194,12 @@ body {
   bottom: 0;
   color: #999; /* IE8 proofing */
   color: rgba(255,255,255,.5);
+}
+
+
+.slider {
+  cursor: pointer;
+  width: 50px;
+  /*-webkit-transform: rotateZ(-90deg);*/
+          /*transform: rotateZ(-90deg);*/
 }

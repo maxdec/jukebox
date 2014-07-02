@@ -114,11 +114,20 @@ module.exports = function (app) {
     });
   });
 
+  app.get('/volume', function (req, res) {
+    volume.get(function (err, perc) {
+      if (err) return res.send(500, err);
+      res.send(200, {
+        perc: perc
+      });
+    });
+  });
+
   app.post('/volume', function (req, res) {
-    if (!req.body.p) return res.send(400, 'You need to provide a percentage.');
-    var p = parseInt(req.body.p, 10);
+    if (!req.body.perc) return res.send(400, 'You need to provide a percentage.');
+    var p = parseInt(req.body.perc, 10);
     if (p < 0 || p > 100) return res.send(400, 'Percentage value out of range.');
-    volume(p);
+    volume.set(p);
     res.send(201);
   });
 };

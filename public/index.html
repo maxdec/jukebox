@@ -19,6 +19,10 @@
       <div class="row masthead">
         <div class="col-xs-12">
           <ul class="nav masthead-nav pull-right">
+            <li class="volume">
+              <i class="fa fa-volume-up"></i>
+              <slider value="volume"></slider>
+            </li>
             <li>
               <a href ng-click="play()" ng-hide="playing"><i class="fa fa-play"></i></a>
               <a href ng-click="pause()" ng-show="playing"><i class="fa fa-pause"></i></a>
@@ -27,6 +31,7 @@
             <li ng-class="{ active: $location.path() === '/history' }"><a href="#!/history">History</a></li>
           </ul>
           <h3 class="masthead-brand">Jukebox</h3>
+          <h3 class="fa fa-music"></h3>
         </div>
       </div>
 
@@ -64,6 +69,8 @@
     <script src="/js/tracks.js"></script>
     <script src="/js/player.js"></script>
     <script src="/js/votes.js"></script>
+    <script src="/js/volume.js"></script>
+    <script src="/js/directives.js"></script>
     <script src="/js/controllers.js"></script>
     <script src="/js/duration.js"></script>
     <script src="/js/socket.js"></script>
@@ -170,6 +177,12 @@
         <button type="button" class="close" ng-click="$hide()">&times;</button>
         <h4 ng-bind="title"></h4>
         <span ng-bind-html="content"></span>
+      </div>
+    </script>
+
+    <script type="text/ng-template" id="slider">
+      <div class="slider progress" ng-click="set($event)">
+        <div class="progress-bar" ng-style="style"></div>
       </div>
     </script>
   </body>
