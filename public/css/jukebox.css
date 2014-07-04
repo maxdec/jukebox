@@ -196,6 +196,15 @@ body {
   color: rgba(255,255,255,.5);
 }
 
+.mastfoot .boxed {
+  margin-right: 5px;
+  padding: 3px;
+  border: dashed 2px white;
+  text-decoration: none;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
 
 .slider {
   cursor: pointer;
