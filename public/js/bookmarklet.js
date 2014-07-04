@@ -5,5 +5,14 @@ javascript:(function(){
   var params = JSON.stringify({ url: href });
   request.open('POST', 'http://192.168.1.180:3000/tracks', true);
   request.setRequestHeader('Content-Type', 'application/json');
+  request.onload = function () {
+    if (request.readyState === 4) {
+      if (request.status === 200) alert('Added!');
+      else alert('Error!');
+    }
+  };
+  request.onerror = function () {
+    console.error(request.statusText);
+  };
   request.send(params);
 })();
