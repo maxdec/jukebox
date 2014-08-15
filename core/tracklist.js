@@ -2,7 +2,7 @@
 
 var redis = require('redis').createClient();
 var Q = require('q');
-var Track = require('./track.js');
+var trackBuilder = require('./track_builder');
 var keys = {
   tracklist: 'jukebox:tracklist',
   history: 'jukebox:history',
@@ -55,9 +55,8 @@ exports.get = function () {
   var deferred = Q.defer();
   redis.lrange(keys.tracklist, 0, -1, function (err, list) {
     if (err) return deferred.reject(err);
-    return deferred.resolve(list.map(function (trackStr) {
-      return new Track(JSON.parse(trackStr));
-    }));
+    var tracks = list.map(trackBuilder.fromJSON);
+    return deferred.resolve(Q.all(tracks));
   });
 
   return deferred.promise;
@@ -71,7 +70,7 @@ exports.first = function () {
   redis.lindex(keys.tracklist, 0, function (err, first) {
     if (err) return deferred.reject(err);
     if (!first) return deferred.resolve();
-    return deferred.resolve(new Track(JSON.parse(first)));
+    return deferred.resolve(trackBuilder.fromJSON(first));
   });
 
   return deferred.promise;
@@ -96,9 +95,10 @@ exports.add = function (track) {
 exports.current = function () {
   var deferred = Q.defer();
   redis.get(keys.current, function (err, current) {
+    console.log('CURRENT', current);
     if (err) return deferred.reject(err);
     if (!current) return deferred.resolve();
-    return deferred.resolve(new Track(JSON.parse(current)));
+    return deferred.resolve(trackBuilder.fromJSON(current));
   });
 
   return deferred.promise;
@@ -146,11 +146,13 @@ exports.waitForNext = function () {
   redis.blpop(keys.tracklist, 0, function (err, res) {
     if (err) return deferred.reject(err);
     // Returns an array [key, value]
-    var nextTrack = new Track(JSON.parse(res[1]));
-    nextTrack.playedAt = new Date();
-    redis.set(keys.current, JSON.stringify(nextTrack), function (err) {
-      if (err) return deferred.reject(err);
-      deferred.resolve(nextTrack);
+    trackBuilder.fromJSON(res[1])
+    .then(function (nextTrack) {
+      nextTrack.playedAt = new Date();
+      redis.set(keys.current, JSON.stringify(nextTrack), function (err) {
+        if (err) return deferred.reject(err);
+        deferred.resolve(nextTrack);
+      });
     });
   });
 
@@ -164,9 +166,8 @@ exports.history = function () {
   var deferred = Q.defer();
   redis.lrange(keys.history, 0, -1, function (err, list) {
     if (err) return deferred.reject(err);
-    return deferred.resolve(list.map(function (trackStr) {
-      return new Track(JSON.parse(trackStr));
-    }));
+    var tracks = list.map(trackBuilder.fromJSON);
+    return deferred.resolve(Q.all(tracks));
   });
 
   return deferred.promise;

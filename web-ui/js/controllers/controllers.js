@@ -4,39 +4,21 @@
  */
 
 angular.module('jukebox')
-.controller('MainCtrl', ['$scope', '$location', 'Player', 'socket', 'Volume',
-                function ($scope,   $location,   Player,   socket,   Volume) {
+.controller('MainCtrl', ['$scope', '$location', 'Player', 'socket',
+                function ($scope,   $location,   Player,   socket) {
   $scope.$location = $location;
+  $scope.Player = Player;
   socket.init();
-
-  $scope.play = function () {
-    Player.play().$promise.then(function () {
-      $scope.playing = true;
-    });
-  };
-
-  $scope.pause = function () {
-    Player.pause().$promise.then(function () {
-      $scope.playing = false;
-    });
-  };
 
   $scope.bookmarklet = 'javascript:(function(){var e=window.location.href;if(e.indexOf(\'soundcloud\')===-1&&e.indexOf(\'youtube\')===-1){return}var t=new XMLHttpRequest;var n=JSON.stringify({url:e});t.open(\'POST\',\'http://' + location.host + '/tracks\',true);t.setRequestHeader(\'Content-Type\',\'application/json\');t.onload=function(){if(t.readyState===4){if(t.status===200||t.status===201)alert(\'Added!\');else alert(\'Error!\')}};t.onerror=function(){console.error(t.statusText)};t.send(n)})()';
 
-  Volume.get().$promise.then(function (vol) {
+  Player.volume().then(function (vol) {
     $scope.volume = vol.perc;
   });
 
-  function setPlaying() {
-    Player.get().$promise.then(function (resp) {
-      $scope.playing = resp.playing;
-    });
-  }
-  setPlaying();
-
   $scope.$watch('volume', function (perc) {
     if (!perc) return;
-    Volume.save({ perc: perc });
+    Player.volume(perc);
   });
 }])
 

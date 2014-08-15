@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<ices>
+
+    <!-- run in background  -->
+    <background>0</background>
+    <!-- where logs go. -->
+    <logpath>logs/</logpath>
+    <logfile>ices.log</logfile>
+    <!-- size in kilobytes -->
+    <logsize>2048</logsize>
+    <!-- 1=error, 2=warn, 3=infoa ,4=debug -->
+    <loglevel>4</loglevel>
+    <!-- logfile is ignored if this is set to 1 -->
+    <consolelog>0</consolelog>
+
+    <!-- optional filename to write process id to -->
+    <!-- <pidfile>/home/ices/ices.pid</pidfile> -->
+
+    <stream>
+        <!-- metadata used for stream listing -->
+        <metadata>
+            <name>Spotistic's Jukekox</name>
+            <genre>All and everything</genre>
+            <description>Music for our office</description>
+            <url>https://spotistic.com</url>
+        </metadata>
+
+        <input>
+            <module>stdinpcm</module>
+            <param name="rate">44100</param>
+            <param name="channels">2</param>
+            <!-- Read metadata (from stdin by default, or -->
+            <!-- filename defined below (if the latter, only on SIGUSR1) -->
+            <param name="metadata">1</param>
+            <param name="metadatafilename">jukebox.metadata</param>
+        </input>
+
+        <instance>
+            <!--    Server details.
+                You define hostname and port for the server here, along
+                with the source password and mountpoint.  -->
+            <hostname>localhost</hostname>
+            <port>8000</port>
+            <password>rhinos</password>
+            <mount>/jukebox.ogg</mount>
+
+            <!--    Live encoding/reencoding:
+                channels and samplerate currently MUST match the channels
+                and samplerate given in the parameters to the alsa input
+                module above or the remsaple/downmix section below.  -->
+            <encode>
+                <quality>5</quality>
+                <samplerate>44100</samplerate>
+                <channels>2</channels>
+            </encode>
+
+            <!-- resampling.
+                Set to the frequency (in Hz) you wish to resample to, -->
+            <resample>
+                <in-rate>44100</in-rate>
+                <out-rate>44100</out-rate>
+            </resample>
+        </instance>
+
+    </stream>
+</ices>

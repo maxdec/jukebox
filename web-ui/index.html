@@ -24,8 +24,8 @@
               <slider value="volume"></slider>
             </li>
             <li>
-              <a href ng-click="play()" ng-hide="playing"><i class="fa fa-play"></i></a>
-              <a href ng-click="pause()" ng-show="playing"><i class="fa fa-pause"></i></a>
+              <a href ng-click="Player.play()" ng-hide="playing"><i class="fa fa-play"></i></a>
+              <a href ng-click="Player.pause()" ng-show="playing"><i class="fa fa-pause"></i></a>
             </li>
             <li ng-class="{ active: $location.path() === '/playing' }"><a href="#!/playing">Playing</a></li>
             <li ng-class="{ active: $location.path() === '/history' }"><a href="#!/history">History</a></li>
@@ -66,14 +66,15 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/app.js"></script>
-    <script src="/js/tracks.js"></script>
-    <script src="/js/player.js"></script>
-    <script src="/js/votes.js"></script>
-    <script src="/js/volume.js"></script>
-    <script src="/js/directives.js"></script>
-    <script src="/js/controllers.js"></script>
-    <script src="/js/duration.js"></script>
-    <script src="/js/socket.js"></script>
+    <script src="/js/resources/tracks.js"></script>
+    <script src="/js/resources/votes.js"></script>
+    <script src="/js/resources/remote_player.js"></script>
+    <script src="/js/resources/remote_volume.js"></script>
+    <script src="/js/directives/directives.js"></script>
+    <script src="/js/controllers/controllers.js"></script>
+    <script src="/js/filters/duration.js"></script>
+    <script src="/js/services/player.js"></script>
+    <script src="/js/services/socket.js"></script>
 
     <script type="text/ng-template" id="playing">
       <div class="row">

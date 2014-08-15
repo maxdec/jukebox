@@ -3,33 +3,30 @@
 var cp = require('child_process');
 var socket = require('./socket')();
 var tracklist = require('./tracklist');
-var redis = require('redis').createClient();
+var config = require('./config');
+var outputs = config.outputs.map(function (outputName) {
+  return require('./outputs/' + outputName);
+});
 var worker;
 var state = {
   running: false,
   playing: false,
   auto: false // auto-reload a dead worker
 };
-var minVotes = 3;
 
 function start() {
-  worker = cp.fork('./worker');
+  var args = [__dirname + '/player_worker.js'];
+  worker = cp.spawn(process.execPath, args, {
+    stdio: [0, 'pipe', 2, 'ipc'],
+    cwd: __dirname
+  });
   _attachEvents();
+  _attachOutputs();
   state.running = true;
 }
 
 function stop() {
   if (worker) worker.kill();
-}
-
-function checkVotesNext() {
-  redis.scard('jukebox:votes', function (err, count) {
-    if (err) return console.log(err);
-    if (count < minVotes) return;
-    tracklist.next();
-    stop();
-    start();
-  });
 }
 
 function _attachEvents() {
@@ -63,10 +60,15 @@ function _attachEvents() {
   });
 }
 
+function _attachOutputs() {
+  outputs.forEach(function (output) {
+    worker.stdout.pipe(output);
+  });
+}
+
 module.exports = {
   start: start,
   stop: stop,
   state: function () { return state; },
-  setAuto: function (bool) { state.auto = bool; },
-  checkVotesNext: checkVotesNext
+  setAuto: function (bool) { state.auto = bool; }
 };
