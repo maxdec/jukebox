@@ -72,14 +72,14 @@ function resolve(trackUrl) {
  */
 function _initFromExternal(track) {
   /* jshint validthis:true */
-  this.title = track.title;
-  this.artist = track.user.username;
-  this.duration = track.duration;
-  this.url = track.permalink_url;
+  this.title     = track.title;
+  this.artist    = track.user.username;
+  this.duration  = track.duration;
+  this.url       = track.permalink_url;
   this.streamUrl = track.stream_url;
-  this.cover = track.artwork_url;
+  this.cover     = track.artwork_url;
   this.createdAt = new Date();
-  this.platform = 'soundcloud';
+  this.platform  = 'soundcloud';
 }
 
 function _initFromInternal() {
@@ -90,6 +90,7 @@ function _initFromInternal() {
 /**
  * Returns a stream with the mp3 data from Soundcloud.
  * Also performs recurrently to follow redirections.
+ * Emits `progression` events.
  */
 function _download(streamUrl, position) {
   streamUrl += '?client_id=' + config.soundcloud.clientId;

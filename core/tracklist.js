@@ -95,7 +95,6 @@ exports.add = function (track) {
 exports.current = function () {
   var deferred = Q.defer();
   redis.get(keys.current, function (err, current) {
-    console.log('CURRENT', current);
     if (err) return deferred.reject(err);
     if (!current) return deferred.resolve();
     return deferred.resolve(trackBuilder.fromJSON(current));

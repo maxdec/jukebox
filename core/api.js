@@ -11,6 +11,7 @@ var volume = require('./volume');
 var config = require('./config');
 var trackBuilder = require('./track_builder');
 var socket = require('./socket')();
+var playerState = require('./player_state');
 module.exports = function (app, playerManager) {
 
 app.use(express.static(__dirname + '/../web-ui'));
@@ -43,16 +44,16 @@ function allowCrossDomain(req, res, next) {
 }
 
   app.get('/player', function (req, res) {
-    res.send(playerManager.state());
+    res.send(playerState);
   });
 
   app.post('/player', function (req, res) {
-    if (!playerManager.state().playing) playerManager.start();
+    if (!playerState.playing) playerManager.start();
     res.status(201).end();
   });
 
   app.delete('/player', function (req, res) {
-    if (playerManager.state().playing) playerManager.stop();
+    if (playerState.playing) playerManager.stop();
     res.status(201).end();
   });
 

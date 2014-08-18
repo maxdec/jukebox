@@ -26,7 +26,6 @@ function play(url) {
 }
 
 function loop() {
-  console.log('LOOPING');
   play(STREAM_URL)
   .then(function () {
     setImmediate(loop);

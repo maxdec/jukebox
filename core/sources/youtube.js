@@ -28,6 +28,7 @@ util.inherits(YoutubeTrack, Track);
  * Plays the sound of a Youtube video.
  * It streams the content, removes the video
  * and encode the sound into mp3.
+ * Emits `progression` events.
  *
  * /!\ Resuming a video is (currently?) not possible.
  * When using the `range` option Youtube just returns a chunk a data
@@ -107,16 +108,16 @@ function resolve(trackUrl) {
  */
 function _initFromExternal(track) {
   /* jshint validthis:true */
-  this.title = track.title.$t;
+  this.title     = track.title.$t;
   if (track.author && track.author[0]) {
     track.artist = track.author[0].name.$t;
   }
-  this.duration = track.media$group.yt$duration.seconds * 1000;
-  this.url = track.link[0].href;
+  this.duration  = track.media$group.yt$duration.seconds * 1000;
+  this.url       = track.link[0].href;
   this.streamUrl = track.link[0].href;
-  this.cover = track.media$group.media$thumbnail[1].url;
+  this.cover     = track.media$group.media$thumbnail[1].url;
   this.createdAt = new Date();
-  this.platform = 'youtube';
+  this.platform  = 'youtube';
 }
 
 function _initFromInternal() {
