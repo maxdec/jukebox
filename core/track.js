@@ -16,6 +16,7 @@ function Track(fullTrack) {
 
 Track.prototype.play = function () {
   console.log('Needs to be defined in the children.');
+  return false;
 };
 
 module.exports = Track;
