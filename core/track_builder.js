@@ -17,7 +17,7 @@ module.exports = {
 /**
  * Checks the sources to find which one the input matches.
  * Then returns a Promise resolving to a Track of the matched source.
- * Input is a String (track url) or an object (JSON from Redis).
+ * Input is a String (track url).
  */
 function fromString(input) {
   var deferred = Q.defer();

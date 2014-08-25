@@ -61,7 +61,9 @@ YoutubeTrack.prototype.play = function play() {
     .on('error', function () {
       ytStream.push(null);
     })
-    .on('end', function () {});
+    .on('end', function () {
+      this.end();
+    });
 
   return new Transcoder(ytStream)
     .custom('vn') // no video
@@ -110,7 +112,7 @@ function _initFromExternal(track) {
   /* jshint validthis:true */
   this.title     = track.title.$t;
   if (track.author && track.author[0]) {
-    track.artist = track.author[0].name.$t;
+    this.artist = track.author[0].name.$t;
   }
   this.duration  = track.media$group.yt$duration.seconds * 1000;
   this.url       = track.link[0].href;
