@@ -4,7 +4,7 @@ var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 var assert = chai.assert;
-var soundcloud = require('../../core/sources/soundcloud');
+var soundcloud = require('../../server/sources/soundcloud');
 
 var jsonTrack = {
   title: 'Inside Out (Snippet)',

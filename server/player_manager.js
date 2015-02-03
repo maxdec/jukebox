@@ -2,9 +2,8 @@
 
 var cp = require('child_process');
 var config = require('./config');
-var outputs = config.outputs.map(function (outputName) {
-  return require('./outputs/' + outputName);
-});
+var PassThrough = require('stream').PassThrough;
+var stream = new PassThrough();
 var eventHandlers = config.eventHandlers.map(function (eventHandlerName) {
   return require('./event_handlers/' + eventHandlerName);
 });
@@ -47,14 +46,13 @@ function _attachEvents() {
 }
 
 function _attachOutputs() {
-  outputs.forEach(function (output) {
-    worker.stdout.pipe(output);
-  });
+  worker.stdout.pipe(stream);
 }
 
 module.exports = {
   start: start,
   stop: function stop() { if (worker) worker.kill(); },
   state: function state() { return state; },
-  setAuto: function setAuto(bool) { config.autoReload = bool; }
+  setAuto: function setAuto(bool) { config.autoReload = bool; },
+  stream: stream
 };

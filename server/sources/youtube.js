@@ -8,6 +8,7 @@ var unirest = require('unirest');
 var ytdl = require('ytdl-core');
 var Transcoder = require('stream-transcoder');
 var format = require('../config').format;
+var Throttle = require('throttle');
 
 module.exports = {
   Track: YoutubeTrack,
@@ -72,7 +73,8 @@ YoutubeTrack.prototype.play = function play() {
     .channels(format.channels)
     .audioBitrate(format.bitRate)
     .format('mp3')
-    .stream();
+    .stream()
+    .pipe(new Throttle(format.bitRate / 8)); // throttle at 128kbps
 };
 
 /**

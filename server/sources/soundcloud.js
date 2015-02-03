@@ -3,7 +3,7 @@
 var util = require('util');
 var urlParser = require('url');
 var https = require('https');
-var stream = require('stream');
+var Throttle = require('throttle');
 var Track = require('../track');
 var Q = require('q');
 var unirest = require('unirest');
@@ -107,11 +107,11 @@ function _download(streamUrl, position) {
     options.headers.Range = 'bytes=0-';
   }
 
-  var passthrough = new stream.PassThrough();
+  var output = new Throttle(128*1000/8); // throttle at 128kbps
 
   https.get(options, function (res) {
     if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-      return _download(res.headers.location, position).pipe(passthrough);
+      return _download(res.headers.location, position).pipe(output);
     } else if (res.statusCode >= 400 ) {
       // 404 or whatever, we skip
       return;
@@ -141,9 +141,9 @@ function _download(streamUrl, position) {
         current: currentLength,
         total: totalLength
       });
-    }).pipe(passthrough);
+    }).pipe(output);
 
   }).end();
 
-  return passthrough;
+  return output;
 }

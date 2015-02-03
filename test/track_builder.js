@@ -4,9 +4,9 @@ var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 var assert = chai.assert;
-var trackBuilder = require('../core/track_builder');
-var soundcloud = require('../core/sources/soundcloud');
-var youtube = require('../core/sources/youtube');
+var trackBuilder = require('../server/track_builder');
+var soundcloud = require('../server/sources/soundcloud');
+var youtube = require('../server/sources/youtube');
 
 describe('Track Builder', function () {
   describe('fromString', function () {

@@ -4,7 +4,7 @@ var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 var assert = chai.assert;
-var youtube = require('../../core/sources/youtube');
+var youtube = require('../../server/sources/youtube');
 
 var jsonTrack = {
   id: {

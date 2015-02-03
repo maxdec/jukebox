@@ -15,6 +15,7 @@
   </head>
 
   <body ng-controller="MainCtrl">
+
     <div class="container">
       <div class="row masthead">
         <div class="col-xs-12">
@@ -24,8 +25,8 @@
               <slider value="volume"></slider>
             </li>
             <li>
-              <a href ng-click="Player.play()" ng-hide="playing"><i class="fa fa-play"></i></a>
-              <a href ng-click="Player.pause()" ng-show="playing"><i class="fa fa-pause"></i></a>
+              <a href ng-click="Player.play()" ng-hide="Player.playing"><i class="fa fa-play"></i></a>
+              <a href ng-click="Player.pause()" ng-show="Player.playing"><i class="fa fa-pause"></i></a>
             </li>
             <li ng-class="{ active: $location.path() === '/playing' }"><a href="#!/playing">Playing</a></li>
             <li ng-class="{ active: $location.path() === '/history' }"><a href="#!/history">History</a></li>

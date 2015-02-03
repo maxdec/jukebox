@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('chai').assert;
-var Track = require('../core/track');
+var Track = require('../server/track');
 
 describe('Track', function () {
   var jsonTrack = {
