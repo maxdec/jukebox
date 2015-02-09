@@ -1,7 +1,7 @@
 {
   "port": 3000,
   "minVotes": 3,
-  "sources": ["youtube", "soundcloud"],
+  "sources": ["youtube", "soundcloud", "file"],
   "eventHandlers": ["progression"],
   "format": {
     "channels": 2,

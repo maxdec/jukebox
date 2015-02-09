@@ -7,6 +7,7 @@ var Track = require('../track');
 var Q = require('q');
 var fs = require('fs');
 var url = require('url');
+var mm = require('musicmetadata');
 
 module.exports = {
   Track: FileTrack,
@@ -32,7 +33,7 @@ FileTrack.prototype.play = function play() {
   var options = {};
   if (this.position) options.start = this.position;
 
-  var output = new Throttle(128*1000/8); // throttle at 128kbps
+  var output = new Throttle(320*1000/8); // throttle at 128kbps
 
   fs.createReadStream(parsedUrl.path, options)
     .pipe(output);
@@ -78,12 +79,26 @@ function resolve(trackUrl) {
   fs.stat(url.path, function (err, stats) {
     if (err) return deferred.reject(err);
     if (!stats.isFile()) return deferred.reject('This is not a track.');
-    deferred.resolve(new FileTrack({
-      title: 'Unknown',
-      artist: 'Unknown',
+    var track = new FileTrack({
+      title: _getFileName(url.path),
       size: stats.size,
       path: url.path
-    }));
+    });
+
+    var stream = fs.createReadStream(url.path);
+    var parser = mm(stream, { duration: true });
+
+    parser.on('metadata', function (metadata) {
+      track.title = metadata.title;
+      track.artist = metadata.artist.join(' ');
+      track.duration = metadata.duration * 1000;
+    });
+
+    parser.on('done', function (err) {
+      if (err) return deferred.reject(err);
+      stream.destroy();
+      deferred.resolve(track);
+    });
   });
 
   return deferred.promise;
@@ -106,4 +121,9 @@ function _initFromExternal(track) {
 function _initFromInternal() {
   /* jshint validthis:true */
   FileTrack.super_.apply(this, arguments);
+}
+
+function _getFileName(path) {
+  var parts = path.split('/');
+  return parts[parts.length - 1];
 }
