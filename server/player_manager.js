@@ -11,6 +11,11 @@ var worker;
 var state = require('./player_state');
 
 function start() {
+  if (worker) {
+    state.running = true;
+    return;
+  }
+
   var args = [__dirname + '/player_worker.js'];
   worker = cp.spawn(process.execPath, args, {
     stdio: [0, 'pipe', 2, 'ipc'],
@@ -26,12 +31,14 @@ function _attachEvents() {
     console.log('CHILD EXIT', code, sig);
     state.playing = false;
     state.running = false;
+    worker = null;
     if (config.autoReload) start();
   });
 
   worker.on('error', function (err) {
     console.log('Worker Error:', err);
     worker.kill();
+    worker = null;
   });
 
   worker.on('message', function (m) {
@@ -41,12 +48,12 @@ function _attachEvents() {
   });
 
   eventHandlers.forEach(function (eventHandler) {
-    eventHandler(worker);
+    if (worker) eventHandler(worker);
   });
 }
 
 function _attachOutputs() {
-  worker.stdout.pipe(stream);
+  if (worker) worker.stdout.pipe(stream, { end: false });
 }
 
 module.exports = {
