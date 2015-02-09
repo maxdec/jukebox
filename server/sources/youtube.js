@@ -101,7 +101,9 @@ function resolve(trackUrl) {
   })
   .end(function (response) {
     if (response.error) return deferred.reject(response.error);
-    deferred.resolve(new YoutubeTrack(response.body.entry));
+    var track = response.body.entry;
+    track.bitrate = 128 * 1000;
+    deferred.resolve(new YoutubeTrack(track));
   });
 
   return deferred.promise;

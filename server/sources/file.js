@@ -8,6 +8,7 @@ var Q = require('q');
 var fs = require('fs');
 var url = require('url');
 var mm = require('musicmetadata');
+var ffprobe = require('node-ffprobe');
 
 module.exports = {
   Track: FileTrack,
@@ -75,29 +76,37 @@ function detectOnInput(input) {
 function resolve(trackUrl) {
   var deferred = Q.defer();
   var url = urlParser.parse(trackUrl, true, true);
-
-  fs.stat(url.path, function (err, stats) {
+  //file:///vagrant/jukebox/audio1.mp3
+  ffprobe(url.path, function (err, results) {
     if (err) return deferred.reject(err);
-    if (!stats.isFile()) return deferred.reject('This is not a track.');
-    var track = new FileTrack({
-      title: _getFileName(url.path),
-      size: stats.size,
-      path: url.path
-    });
+    var track = {
+      title: results.filename,
+      size: results.format.size,
+      duration: results.format.duration * 1000,
+      path: url.path,
+      bitrate: results.format.bit_rate
+    };
 
     var stream = fs.createReadStream(url.path);
-    var parser = mm(stream, { duration: true });
+    var parser = mm(stream);
 
     parser.on('metadata', function (metadata) {
       track.title = metadata.title;
       track.artist = metadata.artist.join(' ');
-      track.duration = metadata.duration * 1000;
+      var pic = metadata.picture[0];
+      if (pic) {
+        var picPath = 'public/img/covers/' + results.filename.replace(results.fileext, '.' + pic.format);
+        track.cover = picPath.replace('public', '');
+        console.log(track);
+        var file = fs.createWriteStream(picPath);
+        file.end(pic.data);
+      }
     });
 
     parser.on('done', function (err) {
       if (err) return deferred.reject(err);
       stream.destroy();
-      deferred.resolve(track);
+      deferred.resolve(new FileTrack(track));
     });
   });
 
@@ -113,17 +122,13 @@ function _initFromExternal(track) {
   this.artist    = track.artist;
   this.duration  = track.duration;
   this.streamUrl = track.path;
-  this.cover     = track.artwork_url;
+  this.cover     = track.cover;
   this.createdAt = new Date();
   this.platform  = 'file';
+  this.bitrate   = track.bitrate;
 }
 
 function _initFromInternal() {
   /* jshint validthis:true */
   FileTrack.super_.apply(this, arguments);
-}
-
-function _getFileName(path) {
-  var parts = path.split('/');
-  return parts[parts.length - 1];
 }

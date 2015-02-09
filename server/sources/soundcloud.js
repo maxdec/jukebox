@@ -59,9 +59,11 @@ function resolve(trackUrl) {
     if (response.body.kind !== 'track') {
       return deferred.reject('This is not a track.');
     }
+    var track = response.body;
     // Better image resolution
-    response.body.artwork_url = response.body.artwork_url.replace('large.jpg', 't300x300.jpg');
-    deferred.resolve(new SoundcloudTrack(response.body));
+    track.artwork_url = track.artwork_url.replace('large.jpg', 't300x300.jpg');
+    track.bitrate = 128 * 1000;
+    deferred.resolve(new SoundcloudTrack(track));
   });
 
   return deferred.promise;

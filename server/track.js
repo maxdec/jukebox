@@ -12,6 +12,7 @@ function Track(fullTrack) {
   this.playedAt  = fullTrack.playedAt;
   this.position  = fullTrack.position;
   this.size      = fullTrack.size;
+  this.bitrate   = fullTrack.bitrate;
 }
 
 Track.prototype.play = function () {
