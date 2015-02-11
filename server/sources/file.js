@@ -97,7 +97,6 @@ function resolve(trackUrl) {
       if (pic) {
         var picPath = 'public/img/covers/' + results.filename.replace(results.fileext, '.' + pic.format);
         track.cover = picPath.replace('public', '');
-        console.log(track);
         var file = fs.createWriteStream(picPath);
         file.end(pic.data);
       }

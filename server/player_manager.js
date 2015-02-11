@@ -43,6 +43,8 @@ function _attachEvents() {
 
   worker.on('message', function (m) {
     if (m.type === 'error') {
+      console.error(m.msg);
+    } else if (m.type === 'log' ) {
       console.log(m.msg);
     }
   });
@@ -63,3 +65,5 @@ module.exports = {
   setAuto: function setAuto(bool) { config.autoReload = bool; },
   stream: stream
 };
+
+start();

@@ -40,9 +40,9 @@ function fromString(input) {
  * Input is an object (JSON from Redis).
  */
 function fromObject(object) {
-  var deferred = Q.defer();
-  deferred.resolve(new sourcesMap[object.platform].Track(object));
-  return deferred.promise;
+  return Q.fcall(function () {
+    return new sourcesMap[object.platform].Track(object);
+  });
 }
 
 /**

@@ -116,6 +116,7 @@ function _download(streamUrl, position) {
       return _download(res.headers.location, position).pipe(output);
     } else if (res.statusCode >= 400 ) {
       // 404 or whatever, we skip
+      output.end();
       return;
     }
 

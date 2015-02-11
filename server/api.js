@@ -45,32 +45,30 @@ module.exports = function (app, playerManager) {
     next();
   }
 
-  app.get('/player', function (req, res) {
+  app.route('/player')
+  .get(function (req, res) {
     res.send(playerState);
-  });
-
-  app.post('/player', function (req, res) {
+  })
+  .post(function (req, res) {
     if (!playerState.playing) playerManager.start();
     res.status(201).end();
-  });
-
-  app.delete('/player', function (req, res) {
+  })
+  .delete(function (req, res) {
     if (playerState.playing) playerManager.stop();
     res.status(201).end();
   });
 
-  app.get('/tracks', function (req, res) {
+  app.route('/tracks')
+  .options(_allowCrossDomain)
+  .get(function (req, res) {
     tracklist.get()
     .then(function (list) {
       res.send(list);
     }, function (err) {
       res.status(503).send(err.message);
     });
-  });
-
-  app.options('/tracks', _allowCrossDomain);
-
-  app.post('/tracks', _allowCrossDomain, function (req, res) {
+  })
+  .post(_allowCrossDomain, function (req, res) {
     if (!req.body.url) return res.status(400).send('You need to provide a track URL.');
     trackBuilder.fromString(req.body.url)
     .then(tracklist.add)
@@ -82,43 +80,25 @@ module.exports = function (app, playerManager) {
     });
   });
 
-  app.get('/tracks/current', function (req, res) {
+  app.route('/current')
+  .get(function (req, res) {
     tracklist.current()
     .then(function (track) {
-      res.send(track);
-    }, function (err) {
-      res.status(500).send(err.message);
-    });
-  });
+      if (!track) return res.send({});
 
-  app.post('/tracks/next', function (req, res) {
-    playerManager.stop();
-    tracklist.next().then(function () {
-      playerManager.start();
-    });
-    res.status(201).end();
-  });
-
-  app.get('/tracks/history', function (req, res) {
-    tracklist.history()
-    .then(function (list) {
-      res.send(list);
-    }, function (err) {
-      res.status(500).send(err.message);
-    });
-  });
-
-  app.get('/votes', function (req, res) {
-    redis.scard('jukebox:votes', function (err, count) {
-      if (err) return res.status(500).send(err);
-      res.send({
-        favorable: count,
-        total: config.minVotes
+      redis.scard('jukebox:votes', function (err, count) {
+        if (err) return res.status(500).send(err);
+        track.votes = {
+          favorable: count,
+          total: config.minVotes
+        };
+        res.send(track);
       });
+    }, function (err) {
+      res.status(500).send(err.message);
     });
-  });
-
-  app.post('/votes', function (req, res) {
+  })
+  .post(function (req, res) {
     redis.sadd('jukebox:votes', req.ip, function (err, newCount) {
       if (err) return res.status(500).send(err);
       res.send(201).end();
@@ -126,6 +106,22 @@ module.exports = function (app, playerManager) {
         socket.emit('new vote', newCount);
         _checkVotesNext();
       }
+    });
+  })
+  .delete(function (req, res) {
+    playerManager.stop();
+    tracklist.next().then(function () {
+      playerManager.start();
+    });
+    res.status(201).end();
+  });
+
+  app.get('/history', function (req, res) {
+    tracklist.history()
+    .then(function (list) {
+      res.send(list);
+    }, function (err) {
+      res.status(500).send(err.message);
     });
   });
 

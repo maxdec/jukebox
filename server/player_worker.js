@@ -10,15 +10,20 @@ function loop() {
   .then(function (track) {
     if (!track) return tracklist.waitForNext().then(immediateLoop);
     process.send({
-      type: 'play',
-      msg: track.title
+      type: 'log',
+      msg: 'Playing: ' + track.title
     });
     return play(track)
+    .then(function () {
+      process.send({
+        type: 'log',
+        msg: 'End of track:' + track.title
+      });
+    })
     .then(tracklist.next)
     .then(immediateLoop);
   })
   .fail(function (err) {
-    console.log(err);
     process.send({
       type: 'error',
       msg: err.toString()
@@ -32,7 +37,6 @@ function loop() {
     immediateLoop();
   });
 }
-
 
 immediateLoop();
 
