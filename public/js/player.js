@@ -5,6 +5,7 @@ function Player(streamUrl) {
   this._audio = new Audio(streamUrl);
   this._audio.volume = 0.5;
   this.playing = false;
+  this.play();
 }
 
 Player.prototype.play = function () {

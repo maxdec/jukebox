@@ -73,7 +73,7 @@ module.exports = function (app, playerManager) {
     trackBuilder.fromString(req.body.url)
     .then(tracklist.add)
     .then(function (track) {
-      socket.emit('new track', track);
+      socket.emit('tracks:new', track);
       res.status(201).send(track);
     }, function (err) {
       res.status(500).send(err.message);
@@ -103,7 +103,7 @@ module.exports = function (app, playerManager) {
       if (err) return res.status(500).send(err);
       res.send(201).end();
       if (newCount > 0) {
-        socket.emit('new vote', newCount);
+        socket.emit('current:votes', newCount);
         _checkVotesNext();
       }
     });

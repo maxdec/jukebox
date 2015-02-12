@@ -6,6 +6,9 @@ var Header = React.createClass({
   getInitialState: function () {
     return { player: new Player('/stream') };
   },
+  componentDidMount: function () {
+    this.play();
+  },
   setVolume: function (perc) {
     var player = this.state.player;
     player.volume(perc);

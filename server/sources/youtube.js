@@ -29,7 +29,7 @@ util.inherits(YoutubeTrack, Track);
  * Plays the sound of a Youtube video.
  * It streams the content, removes the video
  * and encode the sound into mp3.
- * Emits `progression` events.
+ * Emits `progress` events.
  *
  * /!\ Resuming a video is (currently?) not possible.
  * When using the `range` option Youtube just returns a chunk a data
@@ -54,7 +54,7 @@ YoutubeTrack.prototype.play = function play() {
     .on('data', function (chunk) {
       currentLength += chunk.length;
       process.send({
-        type: 'progression',
+        type: 'progress',
         current: currentLength,
         total: totalLength
       });

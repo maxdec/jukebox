@@ -27,7 +27,7 @@ util.inherits(FileTrack, Track);
 
 /**
  * Returns a stream with the mp3 data from the filesystem.
- * Emits `progression` events.
+ * Emits `progress` events.
  */
 FileTrack.prototype.play = function play() {
   var parsedUrl = url.parse(this.streamUrl);
@@ -45,14 +45,14 @@ FileTrack.prototype.play = function play() {
   output.on('data', function (chunk) {
     currentLength += chunk.length;
     process.send({
-      type: 'progression',
+      type: 'progress',
       current: currentLength,
       total: totalLength
     });
   });
 
   process.send({
-    type: 'progression',
+    type: 'progress',
     current: currentLength,
     total: totalLength
   });

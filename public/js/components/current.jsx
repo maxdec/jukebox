@@ -12,7 +12,7 @@ var Current = React.createClass({
       'fa-youtube-play': this.props.track.platform === 'youtube'
     });
 
-    var progress = { width: '50%' };
+    var progress = { width: (this.props.track.progress || 0) + '%' };
 
     var content;
     if (this.props.track.title) {

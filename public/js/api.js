@@ -1,6 +1,6 @@
 'use strict';
 
-var api = {
+window.api = {
   req: function (method, url, data, callback) {
     if (!callback) {
       callback = data;
@@ -22,37 +22,37 @@ var api = {
   },
   player: {
     get: function (callback) {
-      api.req('GET', '/player', callback);
+      window.api.req('GET', '/player', callback);
     },
     post: function (callback) {
-      api.req('POST', '/player', callback);
+      window.api.req('POST', '/player', callback);
     },
     delete: function (callback) {
-      api.req('DELETE', '/player', callback);
+      window.api.req('DELETE', '/player', callback);
     }
   },
   tracks: {
     get: function (callback) {
-      api.req('GET', '/tracks', callback);
+      window.api.req('GET', '/tracks', callback);
     },
     post: function (track, callback) {
-      api.req('POST', '/tracks', track, callback);
+      window.api.req('POST', '/tracks', track, callback);
     }
   },
   current: {
     get: function (callback) {
-      api.req('GET', '/current', callback);
+      window.api.req('GET', '/current', callback);
     },
     post: function (callback) {
-      api.req('POST', '/current', callback);
+      window.api.req('POST', '/current', callback);
     },
     delete: function (callback) {
-      api.req('DELETE', '/current', callback);
+      window.api.req('DELETE', '/current', callback);
     }
   },
   history: {
     get: function (callback) {
-      api.req('GET', '/history', callback);
+      window.api.req('GET', '/history', callback);
     }
   }
 };

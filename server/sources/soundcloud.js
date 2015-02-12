@@ -92,10 +92,13 @@ function _initFromInternal() {
 /**
  * Returns a stream with the mp3 data from Soundcloud.
  * Also performs recurrently to follow redirections.
- * Emits `progression` events.
+ * Emits `progress` events.
  */
 function _download(streamUrl, position) {
-  streamUrl += '?client_id=' + config.soundcloud.clientId;
+  // do not add the clientId after a redirection
+  if (streamUrl.indexOf('Key-Pair-Id') < 0) {
+    streamUrl += '?client_id=' + config.soundcloud.clientId;
+  }
   var parsedUrl = url.parse(streamUrl);
   var options = {
     hostname: parsedUrl.hostname,
@@ -132,7 +135,7 @@ function _download(streamUrl, position) {
     }
 
     process.send({
-      type: 'progression',
+      type: 'progress',
       current: currentLength,
       total: totalLength
     });
@@ -140,7 +143,7 @@ function _download(streamUrl, position) {
     res.on('data', function (chunk) {
       currentLength += chunk.length;
       process.send({
-        type: 'progression',
+        type: 'progress',
         current: currentLength,
         total: totalLength
       });
