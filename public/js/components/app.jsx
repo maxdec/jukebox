@@ -1,5 +1,4 @@
 'use strict';
-/* global api */
 /* global Header */
 /* global Footer */
 /* global Current */
@@ -12,6 +11,7 @@
 /* global HistoryStore */
 /* global TracklistActions */
 /* global TracklistStore */
+/* global notify */
 
 var App = React.createClass({
   getInitialState: function () {
@@ -44,14 +44,17 @@ var App = React.createClass({
     CurrentActions.progress(perc);
   },
   _newTrackPlaying: function () {
+    notify('New track playing');
     CurrentActions.fetch();
     TracklistActions.fetch();
     HistoryActions.fetch();
   },
   _newTrackAdded: function () {
+    notify('New track added to the tracklist');
     TracklistActions.fetch();
   },
   _newVotesNext: function () {
+    notify('New vote for next track');
     CurrentActions.fetch();
   },
   _submitVote: function () {
