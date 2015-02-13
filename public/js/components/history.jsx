@@ -1,5 +1,4 @@
 'use strict';
-/* global helpers */
 /* global Track */
 
 var History = React.createClass({
@@ -11,7 +10,7 @@ var History = React.createClass({
 
     return (
       <div className="row tracklist">
-        <div className="col-md-6 col-md-offset-3">
+        <div className="col-md-8 col-md-offset-2">
           <h3><i className="fa fa-music"></i> History</h3>
           <table className="table table-hover">
             <thead>

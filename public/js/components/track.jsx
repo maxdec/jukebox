@@ -1,14 +1,16 @@
 'use strict';
 /* global helpers */
+/* global TracklistActions */
 
 var Track = React.createClass({
   openUrl: function (event) {
     event.preventDefault();
     helpers.openExt(this.props.track.url);
   },
-  addTrack: function (event) {
+  _addTrack: function (event) {
     event.preventDefault();
-    // TODO
+    event.stopPropagation();
+    TracklistActions.add(this.props.track.url);
   },
   render: function () {
     var cx = React.addons.classSet;
@@ -22,7 +24,11 @@ var Track = React.createClass({
       } else if (field === 'playedAt') {
         content = helpers.at(track.playedAt);
       } else if (field === 'again') {
-        content = <a href onClick={this.addTrack}><i className="fa fa-fw fa-reply fa-flip-vertical"></i></a>;
+        if (track.url) {
+          content = <a href onClick={this._addTrack}><i className="fa fa-fw fa-reply fa-flip-vertical"></i></a>;
+        } else {
+          content = '';
+        }
       } else if (field === 'icon') {
         var iconClasses = cx({
           'fa': true,

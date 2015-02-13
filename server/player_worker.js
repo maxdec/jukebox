@@ -4,30 +4,22 @@ var Q = require('q');
 var tracklist = require('./tracklist');
 var config = require('./config');
 var retries = 0;
+var logger = require('./logger');
 
 function loop() {
   tracklist.current()
   .then(function (track) {
     if (!track) return tracklist.waitForNext().then(immediateLoop);
-    process.send({
-      type: 'log',
-      msg: 'Playing: ' + track.title
-    });
+    logger.log('Playing: ' + track.title);
     return play(track)
     .then(function () {
-      process.send({
-        type: 'log',
-        msg: 'End of track:' + track.title
-      });
+      logger.log('End of track:' + track.title);
     })
     .then(tracklist.next)
     .then(immediateLoop);
   })
   .fail(function (err) {
-    process.send({
-      type: 'error',
-      msg: err.toString()
-    });
+    logger.error(err);
 
     if (++retries >= config.maxRetries) {
       retries = 0;

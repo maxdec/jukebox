@@ -1,6 +1,6 @@
 'use strict';
 
-window.helpers = {
+var helpers = {
   duration: function (input) {
     var millisec = parseInt(input, 10);
     var s = Math.floor(millisec / 1000);
@@ -22,13 +22,13 @@ window.helpers = {
   at: function (dateString) {
     var date = new Date(dateString);
     var day = date.getDate();
-    if (day.length < 10) day = '0' + day;
+    day = (day < 10 ? '0' : '') + day;
     var month = date.getMonth();
-    if (month.length < 10) month = '0' + month;
+    month = (month < 10 ? '0' : '') + month;
     var hours = date.getHours();
-    if (hours.length < 10) hours = '0' + hours;
+    hours = (hours < 10 ? '0' : '') + hours;
     var minutes = date.getMinutes();
-    if (minutes.length < 10) minutes = '0' + minutes;
+    minutes = (minutes < 10 ? '0' : '') + minutes;
 
     return day + '/' + month + ' @ ' + hours + ':' + minutes;
   },

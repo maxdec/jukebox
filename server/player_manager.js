@@ -9,8 +9,11 @@ var eventHandlers = config.eventHandlers.map(function (eventHandlerName) {
 });
 var worker;
 var state = require('./player_state');
+var logger = require('./logger');
+var throttle = require('./throttle');
 
 function start() {
+  console.log('Worker started');
   if (worker) {
     state.running = true;
     return;
@@ -28,7 +31,7 @@ function start() {
 
 function _attachEvents() {
   worker.on('exit', function (code, sig) {
-    console.log('CHILD EXIT', code, sig);
+    logger.log('CHILD EXIT', code, sig);
     state.playing = false;
     state.running = false;
     worker = null;
@@ -36,21 +39,15 @@ function _attachEvents() {
   });
 
   worker.on('error', function (err) {
-    console.log('Worker Error:', err);
+    logger.error('Worker Error:', err);
     worker.kill();
     worker = null;
   });
 
-  worker.on('message', function (m) {
-    if (m.type === 'error') {
-      console.error(m.msg);
-    } else if (m.type === 'log' ) {
-      console.log(m.msg);
-    }
-  });
+  worker.on('message', logger.onMsg);
 
   eventHandlers.forEach(function (eventHandler) {
-    if (worker) eventHandler(worker);
+    if (worker) worker.on('message', throttle(eventHandler, 1000));
   });
 }
 
@@ -66,4 +63,4 @@ module.exports = {
   stream: stream
 };
 
-start();
+if (config.autoReload) start();

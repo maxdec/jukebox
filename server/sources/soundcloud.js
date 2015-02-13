@@ -112,7 +112,7 @@ function _download(streamUrl, position) {
     options.headers.Range = 'bytes=0-';
   }
 
-  var output = new Throttle(128*1000/8); // throttle at 128kbps
+  var output = new Throttle(1.05 * 128*1000/8); // throttle at 128kbps
 
   https.get(options, function (res) {
     if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {

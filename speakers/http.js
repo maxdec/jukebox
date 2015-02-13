@@ -4,7 +4,7 @@ var http = require('http');
 var Q = require('q');
 var lame = require('lame');
 var Speaker = require('speaker');
-var STREAM_URL = 'http://localhost:3000/player/stream';
+var STREAM_URL = 'http://localhost:3000/stream';
 
 function play(url) {
   var deferred = Q.defer();
@@ -18,6 +18,9 @@ function play(url) {
     .on('end', function () {
       deferred.resolve();
     });
+  })
+  .once('error', function (err) {
+    deferred.reject(err);
   });
 
   req.end();

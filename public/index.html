@@ -13,17 +13,24 @@
   </head>
 
   <body>
-    <div id="view"></div>
+    <div id="app"></div>
 
     <script src="/vendor/jquery-2.1.3/jquery-2.1.3.min.js"></script>
     <script src="/vendor/bootstrap-3.3.2-dist/js/bootstrap.min.js"></script>
     <script src="/vendor/react-0.12.2/build/react-with-addons.js"></script>
     <script src="/vendor/react-0.12.2/build/JSXTransformer.js"></script>
+    <script src="/vendor/react-flux-master/react-flux.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 
-    <script src="/js/player.js"></script>
-    <script src="/js/helpers.js"></script>
-    <script src="/js/api.js"></script>
+    <script src="/js/dispatcher/AppDispatcher.js"></script>
+
+    <!-- actions -->
+    <script src="/js/actions/CurrentActions.js"></script>
+    <script src="/js/actions/PlayerActions.js"></script>
+    <script src="/js/actions/TracklistActions.js"></script>
+    <script src="/js/actions/HistoryActions.js"></script>
+
+    <!-- components -->
     <script type="text/jsx;harmony=true" src="/js/components/alert.jsx"></script>
     <script type="text/jsx;harmony=true" src="/js/components/current.jsx"></script>
     <script type="text/jsx;harmony=true" src="/js/components/footer.jsx"></script>
@@ -32,7 +39,24 @@
     <script type="text/jsx;harmony=true" src="/js/components/slider.jsx"></script>
     <script type="text/jsx;harmony=true" src="/js/components/tracklist.jsx"></script>
     <script type="text/jsx;harmony=true" src="/js/components/track.jsx"></script>
-    <script type="text/jsx;harmony=true" src="/js/components/view.jsx"></script>
+    <script type="text/jsx;harmony=true" src="/js/components/app.jsx"></script>
+
+    <!-- constants -->
+    <script src="/js/constants/CurrentConstants.js"></script>
+    <script src="/js/constants/PlayerConstants.js"></script>
+    <script src="/js/constants/TracklistConstants.js"></script>
+    <script src="/js/constants/HistoryConstants.js"></script>
+
+    <!-- actions -->
+    <script src="/js/stores/CurrentStore.js"></script>
+    <script src="/js/stores/PlayerStore.js"></script>
+    <script src="/js/stores/TracklistStore.js"></script>
+    <script src="/js/stores/HistoryStore.js"></script>
+
+    <!-- utils -->
+    <script src="/js/utils/helpers.js"></script>
+    <script src="/js/utils/api.js"></script>
+
     <script type="text/jsx;harmony=true" src="/js/main.jsx"></script>
   </body>
 </html>

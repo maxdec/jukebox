@@ -1,5 +1,7 @@
 'use strict';
 
+var logger = require('./logger');
+
 function Track(fullTrack) {
   this.title     = fullTrack.title;
   this.artist    = fullTrack.artist;
@@ -16,7 +18,7 @@ function Track(fullTrack) {
 }
 
 Track.prototype.play = function () {
-  console.log('Needs to be defined in the children.');
+  logger.log('Needs to be defined in the children.');
   return false;
 };
 

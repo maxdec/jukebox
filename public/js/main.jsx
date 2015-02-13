@@ -1,10 +1,10 @@
 'use strict';
 /* global io */
-/* global View */
+/* global App */
 
 window.socket = io.connect();
 
 React.render(
-  <View />,
-  document.getElementById('view')
+  <App />,
+  document.getElementById('app')
 );

@@ -10,7 +10,7 @@
     "bitRate": 128000
   },
   "maxRetries": 3,
-  "autoReload": false,
+  "autoReload": true,
   "soundcloud": {
     "clientId": "e3a269fc6e454e830d57b8f19a39adf3"
   }

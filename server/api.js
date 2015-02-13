@@ -2,7 +2,7 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
-var logger = require('morgan');
+var morganLog = require('morgan');
 var favicon = require('serve-favicon');
 
 var tracklist = require('./tracklist');
@@ -12,12 +12,13 @@ var trackBuilder = require('./track_builder');
 var socket = require('./socket')();
 var playerState = require('./player_state');
 var listeners = [];
+var logger = require('./logger');
 
 module.exports = function (app, playerManager) {
   playerManager.stream.on('data', _sendChunk);
 
   app.use(express.static(__dirname + '/../public'));
-  app.use(logger('dev'));
+  app.use(morganLog('dev'));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
   app.set('views', __dirname + '/../public');
@@ -73,7 +74,7 @@ module.exports = function (app, playerManager) {
     trackBuilder.fromString(req.body.url)
     .then(tracklist.add)
     .then(function (track) {
-      socket.emit('tracks:new', track);
+      socket.emit('tracks:new');
       res.status(201).send(track);
     }, function (err) {
       res.status(500).send(err.message);
@@ -103,7 +104,7 @@ module.exports = function (app, playerManager) {
       if (err) return res.status(500).send(err);
       res.send(201).end();
       if (newCount > 0) {
-        socket.emit('current:votes', newCount);
+        socket.emit('current:votes');
         _checkVotesNext();
       }
     });
@@ -146,7 +147,7 @@ module.exports = function (app, playerManager) {
   */
   function _checkVotesNext() {
     redis.scard('jukebox:votes', function (err, count) {
-      if (err) return console.log(err);
+      if (err) return logger.log(err);
       if (count < config.minVotes) return;
       tracklist.next();
       playerManager.stop();
@@ -156,14 +157,14 @@ module.exports = function (app, playerManager) {
 };
 
 function _addListener(res) {
-  console.log('Adding listener');
+  logger.log('Adding listener');
   listeners.push(res);
 }
 
 function _removeListener(res) {
   var idx = listeners.indexOf(res);
   listeners.splice(idx, 1);
-  console.log('Removed listener. ' + listeners.length + ' are left.');
+  logger.log('Removed listener. ' + listeners.length + ' are left.');
 }
 
 // Listeners are 'res' objects
