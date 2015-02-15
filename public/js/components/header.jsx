@@ -1,21 +1,23 @@
 'use strict';
 /* global PlayerActions */
 /* global PlayerStore */
+/* global SettingsActions */
+/* global SettingsStore */
 /* global Slider */
 /* global Notification */
 
 var Header = React.createClass({
-  getInitialState: function () {
-    return { notify: false };
-  },
   componentDidMount: function () {
-    PlayerStore.addChangeListener(this._onPlayerChange);
+    PlayerStore.addChangeListener(this._onChange);
     PlayerActions.reset('/stream');
+    SettingsStore.addChangeListener(this._onChange);
+    // SettingsActions.load();
   },
   componentWillUnmount: function () {
-    PlayerStore.removeChangeListener(this._onPlayerChange);
+    PlayerStore.removeChangeListener(this._onChange);
+    SettingsStore.removeChangeListener(this._onChange);
   },
-  _onPlayerChange: function () {
+  _onChange: function () {
     this.forceUpdate();
   },
   _setVolume: function (perc) {
@@ -44,11 +46,11 @@ var Header = React.createClass({
       Notification.requestPermission(function (permission) {
         // If the user is okay, let's create a notification
         if (permission === 'granted') {
-          this.setState({ notify: !this.state.notify });
+          SettingsActions.set('notify', !SettingsStore.get('notify'));
         }
       });
     } else if (Notification.permission === 'granted') {
-      this.setState({ notify: !this.state.notify });
+      SettingsActions.set('notify', !SettingsStore.get('notify'));
     }
   },
   render: function () {
@@ -64,7 +66,7 @@ var Header = React.createClass({
 
     var notify;
     if (this._canNotify()) {
-      notify = <li><input type="checkbox" value={this.state.notify} onChange={this._switchNotify} /> <i className="fa fa-bell"></i></li>;
+      notify = <li><input type="checkbox" value="notify" checked={SettingsStore.get('notify')} onChange={this._switchNotify} /> <i className="fa fa-bell"></i></li>;
     }
 
     return (

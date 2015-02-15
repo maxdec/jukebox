@@ -9,6 +9,7 @@
 /* global CurrentStore */
 /* global HistoryActions */
 /* global HistoryStore */
+/* global SettingsStore */
 /* global TracklistActions */
 /* global TracklistStore */
 /* global notify */
@@ -44,17 +45,17 @@ var App = React.createClass({
     CurrentActions.progress(perc);
   },
   _newTrackPlaying: function () {
-    notify('New track playing');
+    if (SettingsStore.get('notify')) notify('New track playing');
     CurrentActions.fetch();
     TracklistActions.fetch();
     HistoryActions.fetch();
   },
   _newTrackAdded: function () {
-    notify('New track added to the tracklist');
+    if (SettingsStore.get('notify')) notify('New track added to the tracklist');
     TracklistActions.fetch();
   },
   _newVotesNext: function () {
-    notify('New vote for next track');
+    if (SettingsStore.get('notify')) notify('New vote for next track');
     CurrentActions.fetch();
   },
   _submitVote: function () {
