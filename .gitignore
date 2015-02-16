@@ -33,3 +33,4 @@ publish
 node_modules/
 public/img/covers/
 *.mp3
+public/bundle.js
