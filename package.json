@@ -4,6 +4,7 @@
   "description": "Spotistic's Jukebox",
   "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "mocha --recursive",
     "build": "browserify -t reactify public/js/main.jsx -o public/bundle.js",
     "watch": "watchify -t reactify public/js/main.jsx -o public/bundle.js --debug"
