@@ -1,19 +1,21 @@
 'use strict';
-/* global AppDispatcher */
-/* global SettingsConstants */
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var SettingsConstants = require('../constants/SettingsConstants');
 
 var EventEmitter = window.ReactFlux.EventEmitter;
 var merge = window.ReactFlux.Merge;
 
 var SettingsStore = merge(EventEmitter.prototype, {
-  _settings: JSON.parse(localStorage.getItem('settings') || '{"notify": false, "autoplay": false}'),
+  _defaults: { notify: false, autoplay: false },
+  _settings: JSON.parse(localStorage.getItem('settings') || '{}'),
 
   get: function (setting) {
-    return this._settings[setting];
+    return this._settings[setting] || this._defaults[setting];
   },
 
   getAll: function () {
-    return this._settings;
+    return merge(this._defaults, this._settings);
   },
 
   _set: function (setting, value) {
@@ -60,3 +62,5 @@ SettingsStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   return true;
 });
+
+module.exports = SettingsStore;

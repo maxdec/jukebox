@@ -7,3 +7,5 @@ var CurrentConstants = keyMirror({
   CURRENT_SET_VOTES: null,
   CURRENT_PROGRESS: null,
 });
+
+module.exports = CurrentConstants;

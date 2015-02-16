@@ -1,9 +1,10 @@
 'use strict';
-/* global helpers */
-/* global Track */
 
-var Tracklist = React.createClass({
-  addTrack: function () {
+var helpers = require('../utils/helpers');
+var Track = require('./Track.jsx');
+
+module.exports = React.createClass({
+  _addTrack: function (event) {
     event.preventDefault();
     var trackUrl = this.refs.trackUrl.getDOMNode().value.trim();
     if (!trackUrl) return;
@@ -35,7 +36,7 @@ var Tracklist = React.createClass({
               {rows}
               <tr>
                 <td colSpan="5">
-                  <form onSubmit={this.addTrack}>
+                  <form onSubmit={this._addTrack}>
                     <div className="input-group">
                       <span className="input-group-addon"><i className="fa fa-plus"></i></span>
                       <input type="text" className="form-control" ref="trackUrl" placeholder="https://soundcloud.com/ghoststoriesmixtape/ghost-stories-ghostface" />

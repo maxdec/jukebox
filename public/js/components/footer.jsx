@@ -1,6 +1,6 @@
 'use strict';
 
-var Footer = React.createClass({
+module.exports = React.createClass({
   render: function () {
     var bookmarklet = 'javascript:(function(){var e=window.location.href;if(e.indexOf(\'soundcloud\')===-1&&e.indexOf(\'youtube\')===-1){return}var t=new XMLHttpRequest;var n=JSON.stringify({url:e});t.open(\'POST\',\'http://' + location.host + '/tracks\',true);t.setRequestHeader(\'Content-Type\',\'application/json\');t.onload=function(){if(t.readyState===4){if(t.status===200||t.status===201)alert(\'Added!\');else alert(\'Error!\')}};t.onerror=function(){console.error(t.statusText)};t.send(n)})()';
     return (

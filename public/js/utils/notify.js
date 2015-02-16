@@ -1,7 +1,7 @@
 'use strict';
 /* global Notification */
 
-var notify = function (title, body) {
+module.exports = function notify(title, body) {
   if (Notification.permission === 'granted') {
     var n = new Notification(title, {
       body: body,

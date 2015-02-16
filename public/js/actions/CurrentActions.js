@@ -1,7 +1,8 @@
 'use strict';
-/* global AppDispatcher */
-/* global CurrentConstants */
-/* global api */
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var CurrentConstants = require('../constants/CurrentConstants');
+var api = require('../utils/api');
 
 var CurrentActions = {
   fetch: function () {
@@ -34,3 +35,5 @@ var CurrentActions = {
     });
   },
 };
+
+module.exports = CurrentActions;

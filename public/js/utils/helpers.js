@@ -1,6 +1,6 @@
 'use strict';
 
-var helpers = {
+module.exports = {
   duration: function (input) {
     var millisec = parseInt(input, 10);
     var s = Math.floor(millisec / 1000);

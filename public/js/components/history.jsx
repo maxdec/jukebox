@@ -1,7 +1,8 @@
 'use strict';
-/* global Track */
 
-var History = React.createClass({
+var Track = require('./Track.jsx');
+
+module.exports = React.createClass({
   render: function () {
     var rows = this.props.tracks.map(function (track, i) {
       track.id = i + 1;

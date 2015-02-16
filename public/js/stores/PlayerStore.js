@@ -1,6 +1,7 @@
 'use strict';
-/* global AppDispatcher */
-/* global PlayerConstants */
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var PlayerConstants = require('../constants/PlayerConstants');
 
 var EventEmitter = window.ReactFlux.EventEmitter;
 var merge = window.ReactFlux.Merge;
@@ -104,3 +105,5 @@ PlayerStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   return true; // No errors.  Needed by promise in Dispatcher.
 });
+
+module.exports = PlayerStore;

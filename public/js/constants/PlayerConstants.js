@@ -8,3 +8,5 @@ var PlayerConstants = keyMirror({
   PLAYER_SET_VOLUME: null,
   PLAYER_RESET: null,
 });
+
+module.exports = PlayerConstants;

@@ -1,7 +1,8 @@
 'use strict';
-/* global AppDispatcher */
-/* global TracklistConstants */
-/* global api */
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var TracklistConstants = require('../constants/TracklistConstants');
+var api = require('../utils/api');
 
 var TracklistActions = {
   fetch: function () {
@@ -32,3 +33,5 @@ var TracklistActions = {
     });
   }
 };
+
+module.exports = TracklistActions;

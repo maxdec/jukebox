@@ -1,7 +1,8 @@
 'use strict';
-/* global helpers */
 
-var Current = React.createClass({
+var helpers = require('../utils/helpers');
+
+module.exports = React.createClass({
   render: function () {
     var cx = React.addons.classSet;
     var iconClasses = cx({
@@ -33,7 +34,7 @@ var Current = React.createClass({
         </p>
       </div>;
     } else {
-      content = <div className="inner cover" ng-show="currentTrack && !currentTrack.title">
+      content = <div className="inner cover">
         <h1 className="cover-heading">Nothing playing...</h1>
       </div>;
     }

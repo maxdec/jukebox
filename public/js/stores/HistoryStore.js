@@ -1,6 +1,7 @@
 'use strict';
-/* global AppDispatcher */
-/* global HistoryConstants */
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var HistoryConstants = require('../constants/HistoryConstants');
 
 var EventEmitter = window.ReactFlux.EventEmitter;
 var merge = window.ReactFlux.Merge;
@@ -47,3 +48,5 @@ HistoryStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   return true;
 });
+
+module.exports = HistoryStore;

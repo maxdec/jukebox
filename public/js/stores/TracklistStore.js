@@ -1,6 +1,7 @@
 'use strict';
-/* global AppDispatcher */
-/* global TracklistConstants */
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var TracklistConstants = require('../constants/TracklistConstants');
 
 var EventEmitter = window.ReactFlux.EventEmitter;
 var merge = window.ReactFlux.Merge;
@@ -61,3 +62,5 @@ TracklistStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   return true;
 });
+
+module.exports = TracklistStore;

@@ -1,7 +1,8 @@
 'use strict';
-/* global AppDispatcher */
-/* global HistoryConstants */
-/* global api */
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var HistoryConstants = require('../constants/HistoryConstants');
+var api = require('../utils/api');
 
 var HistoryActions = {
   fetch: function () {
@@ -17,3 +18,5 @@ var HistoryActions = {
     });
   }
 };
+
+module.exports = HistoryActions;

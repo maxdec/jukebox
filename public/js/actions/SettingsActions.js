@@ -1,7 +1,7 @@
 'use strict';
-/* global AppDispatcher */
-/* global SettingsConstants */
-/* global SettingsStore */
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var SettingsConstants = require('../constants/SettingsConstants');
 
 var SettingsActions = {
   load: function () {
@@ -18,3 +18,5 @@ var SettingsActions = {
     });
   },
 };
+
+module.exports = SettingsActions;

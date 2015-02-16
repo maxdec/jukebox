@@ -1,6 +1,6 @@
 'use strict';
 
-var Slider = React.createClass({
+module.exports = React.createClass({
   getInitialState: function () {
     return { perc: this.props.perc || 50 };
   },

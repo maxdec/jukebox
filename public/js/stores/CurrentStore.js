@@ -1,6 +1,7 @@
 'use strict';
-/* global AppDispatcher */
-/* global CurrentConstants */
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var CurrentConstants = require('../constants/CurrentConstants');
 
 var EventEmitter = window.ReactFlux.EventEmitter;
 var merge = window.ReactFlux.Merge;
@@ -77,3 +78,5 @@ CurrentStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   return true; // No errors.  Needed by promise in Dispatcher.
 });
+
+module.exports = CurrentStore;

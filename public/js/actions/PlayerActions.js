@@ -1,6 +1,7 @@
 'use strict';
-/* global AppDispatcher */
-/* global PlayerConstants */
+
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var PlayerConstants = require('../constants/PlayerConstants');
 
 var PlayerActions = {
   play: function () {
@@ -29,3 +30,5 @@ var PlayerActions = {
     });
   }
 };
+
+module.exports = PlayerActions;

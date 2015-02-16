@@ -18,3 +18,5 @@ var AppDispatcher = merge(Dispatcher.prototype, {
   }
 
 });
+
+module.exports = AppDispatcher;

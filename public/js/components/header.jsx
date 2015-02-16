@@ -1,21 +1,19 @@
 'use strict';
-/* global PlayerActions */
-/* global PlayerStore */
-/* global SettingsActions */
-/* global SettingsStore */
-/* global Slider */
-/* global Notification */
 
-var Header = React.createClass({
+var Slider = require('./Slider.jsx');
+var PlayerActions = require('../actions/PlayerActions');
+var SettingsActions = require('../actions/SettingsActions');
+var PlayerStore = require('../stores/PlayerStore');
+var SettingsStore = require('../stores/SettingsStore');
+
+module.exports = React.createClass({
   componentDidMount: function () {
     PlayerStore.addChangeListener(this._onChange);
     PlayerActions.reset('/stream');
-    SettingsStore.addChangeListener(this._onChange);
-    // SettingsActions.load();
+    if (SettingsStore.get('autoplay')) PlayerActions.play();
   },
   componentWillUnmount: function () {
     PlayerStore.removeChangeListener(this._onChange);
-    SettingsStore.removeChangeListener(this._onChange);
   },
   _onChange: function () {
     this.forceUpdate();
@@ -32,26 +30,10 @@ var Header = React.createClass({
     PlayerActions.pause();
   },
   _navigate: function (view) {
-    event.preventDefault();
-    this.props.onNavigate(view);
-  },
-  _canNotify: function () {
-    return ('Notification' in window);
-  },
-  _switchNotify: function () {
-    if (!this._canNotify()) return;
-
-    // We need to ask the user for permission
-    if (Notification.permission === 'default') {
-      Notification.requestPermission(function (permission) {
-        // If the user is okay, let's create a notification
-        if (permission === 'granted') {
-          SettingsActions.set('notify', !SettingsStore.get('notify'));
-        }
-      });
-    } else if (Notification.permission === 'granted') {
-      SettingsActions.set('notify', !SettingsStore.get('notify'));
-    }
+    return function (event) {
+      event.preventDefault();
+      this.props.onNavigate(view);
+    }.bind(this);
   },
   render: function () {
     var cx = React.addons.classSet;
@@ -64,11 +46,6 @@ var Header = React.createClass({
       playBtn = <a href onClick={this._play}><i className="fa fa-play"></i></a>;
     }
 
-    var notify;
-    if (this._canNotify()) {
-      notify = <li><input type="checkbox" value="notify" checked={SettingsStore.get('notify')} onChange={this._switchNotify} /> <i className="fa fa-bell"></i></li>;
-    }
-
     return (
       <div className="row masthead">
         <div className="col-xs-12">
@@ -78,9 +55,9 @@ var Header = React.createClass({
               <Slider perc={volume} onChange={this._setVolume} />
             </li>
             <li>{playBtn}</li>
-            <li className={cx({ active: this.props.view === 'current' })}><a href onClick={this._navigate.bind(null, 'current')}>Playing</a></li>
-            <li className={cx({ active: this.props.view === 'history' })}><a href onClick={this._navigate.bind(null, 'history')}>History</a></li>
-            {notify}
+            <li className={cx({ active: this.props.view === 'current' })}><a href onClick={this._navigate('current')}>Playing</a></li>
+            <li className={cx({ active: this.props.view === 'history' })}><a href onClick={this._navigate('history')}>History</a></li>
+            <li className={cx({ active: this.props.view === 'settings' })}><a href onClick={this._navigate('settings')}><i className="fa fa-cogs"></i></a></li>
           </ul>
           <h3 className="masthead-brand">Jukebox</h3>
           <h3 className="fa fa-music"></h3>

@@ -7,3 +7,5 @@ var TracklistConstants = keyMirror({
   TRACKLIST_ADD: null,
   TRACKLIST_REMOVE: null,
 });
+
+module.exports = TracklistConstants;

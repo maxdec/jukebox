@@ -1,20 +1,23 @@
 'use strict';
-/* global Header */
-/* global Footer */
-/* global Current */
-/* global Tracklist */
-/* global History */
 /* global socket */
-/* global CurrentActions */
-/* global CurrentStore */
-/* global HistoryActions */
-/* global HistoryStore */
-/* global SettingsStore */
-/* global TracklistActions */
-/* global TracklistStore */
-/* global notify */
 
-var App = React.createClass({
+var Header = require('./Header.jsx');
+var Footer = require('./Footer.jsx');
+var Current = require('./Current.jsx');
+var Tracklist = require('./Tracklist.jsx');
+var History = require('./History.jsx');
+var Settings = require('./Settings.jsx');
+
+var CurrentActions = require('../actions/CurrentActions');
+var HistoryActions = require('../actions/HistoryActions');
+var TracklistActions = require('../actions/TracklistActions');
+var CurrentStore = require('../stores/CurrentStore');
+var HistoryStore = require('../stores/HistoryStore');
+var SettingsStore = require('../stores/SettingsStore');
+var TracklistStore = require('../stores/TracklistStore');
+var notify = require('../utils/notify');
+
+module.exports = React.createClass({
   getInitialState: function () {
     return { view: 'current' };
   },
@@ -65,7 +68,7 @@ var App = React.createClass({
     TracklistActions.add(trackUrl);
   },
   _navigate: function (view) {
-    if (view in { current: 1, history: 1 }) {
+    if (view in { current: 1, history: 1, settings: 1 }) {
       this.setState({ view: view });
     }
   },
@@ -82,6 +85,8 @@ var App = React.createClass({
       </div>;
     } else if (this.state.view === 'history') {
       mainView = <History tracks={history} onTrackSubmit={this._submitTrack} />;
+    } else if (this.state.view === 'settings') {
+      mainView = <Settings />;
     }
 
     return (

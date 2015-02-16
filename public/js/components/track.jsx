@@ -1,8 +1,9 @@
 'use strict';
-/* global helpers */
-/* global TracklistActions */
 
-var Track = React.createClass({
+var helpers = require('../utils/helpers');
+var TracklistActions = require('../actions/TracklistActions');
+
+module.exports = React.createClass({
   openUrl: function (event) {
     event.preventDefault();
     helpers.openExt(this.props.track.url);

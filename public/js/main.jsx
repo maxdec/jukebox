@@ -1,8 +1,9 @@
 'use strict';
 /* global io */
-/* global App */
 
 window.socket = io.connect();
+
+var App = require('./components/App.jsx');
 
 React.render(
   <App />,
