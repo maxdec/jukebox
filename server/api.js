@@ -128,7 +128,7 @@ module.exports = function (app, playerManager) {
 
   app.get('/stream', function (req, res) {
     res.set({
-      'Content-Type': 'audio/mpeg3',
+      'Content-Type': 'audio/mpeg',
       'Transfer-Encoding': 'chunked'
     });
 
