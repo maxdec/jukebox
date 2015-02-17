@@ -1,9 +1,22 @@
-javascript:(function(){
+'use strict';
+/* jslint scripturl:true */
+
+module.exports = function () {
+  return [
+    'javascript:(',
+    _addTrack.toString().replace('$JUKEBOX_URL$', window.location.host),
+    ')()'
+  ].join('');
+};
+
+function _addTrack() {
   var href = window.location.href;
+  var protocol = window.location.protocol;
   if (href.indexOf('soundcloud') === -1 && href.indexOf('youtube') === -1) { return; }
   var request = new XMLHttpRequest();
   var params = JSON.stringify({ url: href });
-  request.open('POST', 'http://192.168.1.180:3000/tracks', true);
+  var url =
+  request.open('POST', protocol + '//$JUKEBOX_URL$/tracks', true);
   request.setRequestHeader('Content-Type', 'application/json');
   request.onload = function () {
     if (request.readyState === 4) {
@@ -15,4 +28,4 @@ javascript:(function(){
     console.error(request.statusText);
   };
   request.send(params);
-})();
+}
