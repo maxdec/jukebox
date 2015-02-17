@@ -6,7 +6,8 @@ var EventEmitter = require('events').EventEmitter;
 var objectAssign = require('object-assign');
 
 var PlayerStore = objectAssign({}, EventEmitter.prototype, {
-  _audio: {},
+  _audio: new Audio(),
+  _playing: false,
 
   isPlaying: function () {
     return !!this._playing;
@@ -18,19 +19,25 @@ var PlayerStore = objectAssign({}, EventEmitter.prototype, {
 
   _reset: function (streamUrl) {
     this._streamUrl = streamUrl || this._streamUrl;
-    this._audio = new Audio(this._streamUrl);
+    this._audio.src = this._streamUrl;
     this._audio.volume = 0.5;
+    this._audio.autoplay = false;
+    this._audio.preload = 'none';
+    this._audio.pause();
     this._playing = false;
     this._attachEvents();
-    this._play();
   },
 
   _play: function () {
+    this._audio.src = this._streamUrl;
+    this._playing = true;
     this._audio.play();
   },
 
   _pause: function () {
     this._audio.pause();
+    this._playing = false;
+    this._audio.src = '';
   },
 
   _setVolume: function (perc) {
