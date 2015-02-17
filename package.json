@@ -7,7 +7,7 @@
     "start": "node server.js",
     "test": "mocha --recursive",
     "build": "browserify -t reactify public/js/main.jsx -o public/bundle.js",
-    "watch": "watchify -t reactify public/js/main.jsx -o public/bundle.js --debug"
+    "watch": "watchify -t reactify public/js/main.jsx -o public/bundle.js --debug -v"
   },
   "author": "Maxence Decrosse",
   "license": "ISC",
