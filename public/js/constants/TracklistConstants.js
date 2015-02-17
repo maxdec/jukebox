@@ -1,6 +1,6 @@
 'use strict';
 
-var keyMirror = require('keyMirror');
+var keyMirror = require('keymirror');
 
 var TracklistConstants = keyMirror({
   TRACKLIST_SET: null,

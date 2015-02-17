@@ -1,6 +1,6 @@
 'use strict';
 
-var keyMirror = require('keyMirror');
+var keyMirror = require('keymirror');
 
 var CurrentConstants = keyMirror({
   CURRENT_SET: null,
