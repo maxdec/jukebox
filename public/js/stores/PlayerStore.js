@@ -76,19 +76,19 @@ PlayerStore.dispatchToken = AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch (action.actionType) {
-    case PlayerConstants.PLAY:
+    case PlayerConstants.PLAYER_PLAY:
       PlayerStore._play();
       break;
 
-    case PlayerConstants.PAUSE:
+    case PlayerConstants.PLAYER_PAUSE:
       PlayerStore._pause();
       break;
 
-    case PlayerConstants.SET_VOLUME:
+    case PlayerConstants.PLAYER_SET_VOLUME:
       PlayerStore._setVolume(action.data);
       break;
 
-    case PlayerConstants.RESET:
+    case PlayerConstants.PLAYER_RESET:
       PlayerStore._reset(action.data);
       break;
 
