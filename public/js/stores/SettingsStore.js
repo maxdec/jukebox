@@ -14,7 +14,7 @@ var SettingsStore = objectAssign({}, EventEmitter.prototype, {
   },
 
   getAll: function () {
-    return Object.assign({}, this._defaults, this._settings);
+    return objectAssign({}, this._defaults, this._settings);
   },
 
   _set: function (setting, value) {
