@@ -129,7 +129,10 @@ module.exports = function (app, playerManager) {
   app.get('/stream', function (req, res) {
     res.set({
       'Content-Type': 'audio/mpeg',
-      'Transfer-Encoding': 'chunked'
+      'Transfer-Encoding': 'chunked',
+      'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+      'Expires': '-1',
+      'Pragma': 'no-cache',
     });
 
     _addListener(res);
