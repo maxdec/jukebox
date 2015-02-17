@@ -1,6 +1,6 @@
 'use strict';
 
-var keyMirror = window.ReactFlux.KeyMirror;
+var keyMirror = require('keyMirror');
 
 var TracklistConstants = keyMirror({
   TRACKLIST_SET: null,

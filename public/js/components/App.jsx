@@ -1,6 +1,7 @@
 'use strict';
 /* global socket */
 
+var React = require('react/addons');
 var Header = require('./Header.jsx');
 var Footer = require('./Footer.jsx');
 var Current = require('./Current.jsx');

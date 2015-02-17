@@ -2,11 +2,10 @@
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var PlayerConstants = require('../constants/PlayerConstants');
+var EventEmitter = require('events').EventEmitter;
+var objectAssign = require('object-assign');
 
-var EventEmitter = window.ReactFlux.EventEmitter;
-var merge = window.ReactFlux.Merge;
-
-var PlayerStore = merge(EventEmitter.prototype, {
+var PlayerStore = objectAssign({}, EventEmitter.prototype, {
   _audio: {},
 
   isPlaying: function () {

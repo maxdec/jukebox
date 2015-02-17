@@ -2,11 +2,10 @@
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var TracklistConstants = require('../constants/TracklistConstants');
+var EventEmitter = require('events').EventEmitter;
+var objectAssign = require('object-assign');
 
-var EventEmitter = window.ReactFlux.EventEmitter;
-var merge = window.ReactFlux.Merge;
-
-var TracklistStore = merge(EventEmitter.prototype, {
+var TracklistStore = objectAssign({}, EventEmitter.prototype, {
   _tracks: [],
 
   get: function() {

@@ -2,11 +2,10 @@
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var HistoryConstants = require('../constants/HistoryConstants');
+var EventEmitter = require('events').EventEmitter;
+var objectAssign = require('object-assign');
 
-var EventEmitter = window.ReactFlux.EventEmitter;
-var merge = window.ReactFlux.Merge;
-
-var HistoryStore = merge(EventEmitter.prototype, {
+var HistoryStore = objectAssign({}, EventEmitter.prototype, {
   _tracks: [],
 
   get: function() {

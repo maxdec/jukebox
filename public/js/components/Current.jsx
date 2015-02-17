@@ -1,5 +1,6 @@
 'use strict';
 
+var React = require('react/addons');
 var helpers = require('../utils/helpers');
 
 module.exports = React.createClass({

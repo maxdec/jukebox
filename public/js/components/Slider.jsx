@@ -1,5 +1,7 @@
 'use strict';
 
+var React = require('react/addons');
+
 module.exports = React.createClass({
   getInitialState: function () {
     return { perc: this.props.perc || 50 };

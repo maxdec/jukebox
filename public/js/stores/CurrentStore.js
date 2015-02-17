@@ -2,11 +2,10 @@
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var CurrentConstants = require('../constants/CurrentConstants');
+var EventEmitter = require('events').EventEmitter;
+var objectAssign = require('object-assign');
 
-var EventEmitter = window.ReactFlux.EventEmitter;
-var merge = window.ReactFlux.Merge;
-
-var CurrentStore = merge(EventEmitter.prototype, {
+var CurrentStore = objectAssign({}, EventEmitter.prototype, {
   _current: {},
 
   /**

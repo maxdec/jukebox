@@ -1,5 +1,6 @@
 'use strict';
 
+var React = require('react/addons');
 var Slider = require('./Slider.jsx');
 var PlayerActions = require('../actions/PlayerActions');
 var SettingsActions = require('../actions/SettingsActions');

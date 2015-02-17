@@ -2,11 +2,10 @@
 
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var SettingsConstants = require('../constants/SettingsConstants');
+var EventEmitter = require('events').EventEmitter;
+var objectAssign = require('object-assign');
 
-var EventEmitter = window.ReactFlux.EventEmitter;
-var merge = window.ReactFlux.Merge;
-
-var SettingsStore = merge(EventEmitter.prototype, {
+var SettingsStore = objectAssign({}, EventEmitter.prototype, {
   _defaults: { notify: false, autoplay: false },
   _settings: JSON.parse(localStorage.getItem('settings') || '{}'),
 
@@ -15,7 +14,7 @@ var SettingsStore = merge(EventEmitter.prototype, {
   },
 
   getAll: function () {
-    return merge(this._defaults, this._settings);
+    return Object.assign({}, this._defaults, this._settings);
   },
 
   _set: function (setting, value) {

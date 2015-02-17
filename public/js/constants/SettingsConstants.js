@@ -1,6 +1,6 @@
 'use strict';
 
-var keyMirror = window.ReactFlux.KeyMirror;
+var keyMirror = require('keyMirror');
 
 var SettingsConstants = keyMirror({
   SETTINGS_SET: null,

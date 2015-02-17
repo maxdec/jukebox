@@ -1,6 +1,7 @@
 'use strict';
 /* global Notification */
 
+var React = require('react/addons');
 var SettingsActions = require('../actions/SettingsActions');
 var SettingsStore = require('../stores/SettingsStore');
 
@@ -41,14 +42,24 @@ module.exports = React.createClass({
         <div className="col-sm-6 col-sm-offset-3">
           <h2>Settings</h2>
           <form>
-            <p>
-              <input type="checkbox" value="notify" checked={SettingsStore.get('notify')} onChange={this._switchNotify} />
-              <i className="fa fa-bell"></i> Notifications
-            </p>
-            <p>
-              <input type="checkbox" value="autoplay" checked={SettingsStore.get('autoplay')} onChange={this._switchAutoplay} />
-              <i className="fa fa-music"></i> Autoplay
-            </p>
+            <div className="input-group">
+              <span className="input-group-addon">
+                <input type="checkbox" value="notify" checked={SettingsStore.get('notify')} onChange={this._switchNotify} />
+              </span>
+              <span className="form-control">Notifications</span>
+              <span className="input-group-addon">
+                <i className="fa fa-fw fa-bell"></i>
+              </span>
+            </div>
+            <div className="input-group">
+              <span className="input-group-addon">
+                <input type="checkbox" value="autoplay" checked={SettingsStore.get('autoplay')} onChange={this._switchAutoplay} />
+              </span>
+              <span className="form-control">Autoplay</span>
+              <span className="input-group-addon">
+                <i className="fa fa-fw fa-music"></i>
+              </span>
+            </div>
           </form>
         </div>
       </div>
