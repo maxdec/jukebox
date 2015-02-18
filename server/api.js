@@ -2,6 +2,7 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 var morganLog = require('morgan');
 var favicon = require('serve-favicon');
 
@@ -13,6 +14,7 @@ var socket = require('./socket')();
 var playerState = require('./player_state');
 var listeners = [];
 var logger = require('./logger');
+var uniqueVisitor = require('./unique_visitor');
 
 module.exports = function (app, playerManager) {
   playerManager.stream.on('data', _sendChunk);
@@ -21,6 +23,8 @@ module.exports = function (app, playerManager) {
   app.use(morganLog('dev'));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
+  app.use(cookieParser('lagavulin'));
+  app.use(uniqueVisitor);
   app.set('views', __dirname + '/../public');
   app.set('view engine', 'ejs');
   app.engine('html', require('ejs').renderFile);
@@ -100,7 +104,8 @@ module.exports = function (app, playerManager) {
     });
   })
   .post(function (req, res) {
-    redis.sadd('jukebox:votes', req.ip, function (err, newCount) {
+    var identifier = req.cookies.uid || req.ip; // shouldn't be `req.ip` but...
+    redis.sadd('jukebox:votes', identifier, function (err, newCount) {
       if (err) return res.status(500).send(err);
       res.send(201).end();
       if (newCount > 0) {
