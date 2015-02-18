@@ -6,9 +6,13 @@ module.exports = React.createClass({
   getInitialState: function () {
     return { perc: this.props.perc || 50 };
   },
-  handleClick: function () {
-    var sliderTotalWith = this.refs.slider.getDOMNode().offsetWidth;
-    var perc = Math.round(100 * event.offsetX / sliderTotalWith);
+  _handleClick: function (event) {
+    var target  = event.target || event.srcElement;
+    var rect    = target.getBoundingClientRect();
+    var offsetX = event.clientX - rect.left;
+
+    var sliderTotalWith = target.offsetWidth;
+    var perc = Math.round(100 * offsetX / sliderTotalWith);
     this.setState({ perc: perc });
     this.props.onChange(perc);
   },
@@ -18,7 +22,7 @@ module.exports = React.createClass({
     };
 
     return (
-      <div className="slider progress" ref="slider" onClick={this.handleClick}>
+      <div className="slider progress" ref="slider" onClick={this._handleClick}>
         <div className="progress-bar" style={barStyle}></div>
       </div>
     );
