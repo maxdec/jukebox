@@ -1,7 +1,6 @@
 'use strict';
 
 var React = require('react/addons');
-var helpers = require('../utils/helpers');
 var Track = require('./Track.jsx');
 
 module.exports = React.createClass({
