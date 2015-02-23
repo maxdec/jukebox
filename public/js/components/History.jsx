@@ -2,10 +2,27 @@
 
 var React = require('react/addons');
 var Track = require('./Track.jsx');
+var HistoryActions = require('../actions/HistoryActions');
+var HistoryStore = require('../stores/HistoryStore');
 
 module.exports = React.createClass({
+  getInitialState: function () {
+    return {
+      tracks: HistoryStore.get()
+    };
+  },
+  componentDidMount: function () {
+    HistoryStore.addChangeListener(this._onHistoryChange);
+    HistoryActions.fetch();
+  },
+  componentWillUnmount: function() {
+    HistoryStore.removeChangeListener(this._onHistoryChange);
+  },
+  _onHistoryChange: function () {
+    this.setState({ tracks: HistoryStore.get() });
+  },
   render: function () {
-    var rows = this.props.tracks.map(function (track, i) {
+    var rows = this.state.tracks.map(function (track, i) {
       track.id = i + 1;
       return <Track key={i} track={track} fields={['playedAt', 'title', 'artist', 'duration', 'again', 'icon']} />;
     }.bind(this));

@@ -6,14 +6,23 @@ var SettingsActions = require('../actions/SettingsActions');
 var SettingsStore = require('../stores/SettingsStore');
 
 module.exports = React.createClass({
+  getInitialState: function () {
+    return {
+      notify: SettingsStore.get('notify'),
+      autoplay: SettingsStore.get('autoplay')
+    };
+  },
   componentDidMount: function () {
-    SettingsStore.addChangeListener(this._onChange);
+    SettingsStore.addChangeListener(this._onSettingsChange);
   },
   componentWillUnmount: function () {
-    SettingsStore.removeChangeListener(this._onChange);
+    SettingsStore.removeChangeListener(this._onSettingsChange);
   },
-  _onChange: function () {
-    this.forceUpdate();
+  _onSettingsChange: function () {
+    this.setState({
+      notify: SettingsStore.get('notify'),
+      autoplay: SettingsStore.get('autoplay')
+    });
   },
   _canNotify: function () {
     return ('Notification' in window);
@@ -44,7 +53,7 @@ module.exports = React.createClass({
           <form>
             <div className="input-group">
               <span className="input-group-addon">
-                <input type="checkbox" value="notify" checked={SettingsStore.get('notify')} onChange={this._switchNotify} />
+                <input type="checkbox" value="notify" checked={this.state.notify} onChange={this._switchNotify} />
               </span>
               <span className="form-control">Notifications</span>
               <span className="input-group-addon">
@@ -53,7 +62,7 @@ module.exports = React.createClass({
             </div>
             <div className="input-group">
               <span className="input-group-addon">
-                <input type="checkbox" value="autoplay" checked={SettingsStore.get('autoplay')} onChange={this._switchAutoplay} />
+                <input type="checkbox" value="autoplay" checked={this.state.autoplay} onChange={this._switchAutoplay} />
               </span>
               <span className="form-control">Autoplay</span>
               <span className="input-group-addon">

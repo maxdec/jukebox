@@ -65,7 +65,7 @@ FileTrack.prototype.play = function play() {
  */
 function detectOnInput(input) {
   var url = urlParser.parse(input, true, true);
-  return (url.protocol.indexOf('file') > -1);
+  return (url.protocol && url.protocol.indexOf('file') > -1);
 }
 
 /**
@@ -76,7 +76,7 @@ function detectOnInput(input) {
 function resolve(trackUrl) {
   var deferred = Q.defer();
   var url = urlParser.parse(trackUrl, true, true);
-  //file:///vagrant/jukebox/audio1.mp3
+
   ffprobe(url.path, function (err, results) {
     if (err) return deferred.reject(err);
     var track = {
@@ -125,6 +125,7 @@ function _initFromExternal(track) {
   this.createdAt = new Date();
   this.platform  = 'file';
   this.bitrate   = track.bitrate;
+  this.size      = track.size;
 }
 
 function _initFromInternal() {

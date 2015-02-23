@@ -6,57 +6,75 @@ var EventEmitter = require('events').EventEmitter;
 var objectAssign = require('object-assign');
 
 var PlayerStore = objectAssign({}, EventEmitter.prototype, {
-  _audio: new Audio(),
+  _audio: null,
+  _streamUrl: '//vagrant:3000/stream?cache-buster=' + Date.now(),
   _playing: false,
+  _volume: 0.5,
 
   isPlaying: function () {
     return !!this._playing;
   },
 
   getVolume: function () {
-    return this._audio.volume * 100;
+    return this._volume * 100;
   },
 
   _reset: function (streamUrl) {
+    this._stop();
+    this._play(streamUrl);
+  },
+
+  _play: function (streamUrl) {
+    if (this._audio) return;
+
     this._streamUrl = streamUrl || this._streamUrl;
+    this._audio = new Audio();
     this._audio.src = this._streamUrl;
-    this._audio.volume = 0.5;
-    this._audio.autoplay = false;
-    this._audio.preload = 'none';
-    this._audio.pause();
-    this._playing = false;
+    this._audio.volume = this._volume;
+    this._audio.play();
+    this._playing = true;
     this._attachEvents();
   },
 
-  _play: function () {
-    this._audio.src = this._streamUrl;
-    this._playing = true;
-    this._audio.play();
-  },
-
-  _pause: function () {
-    this._audio.pause();
+  _stop: function () {
     this._playing = false;
-    this._audio.src = '';
+    if (this._audio) {
+      this._audio.pause();
+      this._audio.src = '';
+      this._removeEvents();
+      this._audio = null;
+    }
   },
 
   _setVolume: function (perc) {
-    if (typeof perc === 'number') this._audio.volume = perc / 100;
+    if (typeof perc === 'number') {
+      this._volume = perc / 100;
+      if (this._audio) this._audio.volume = perc / 100;
+    }
   },
 
   _attachEvents: function () {
-    this._audio.addEventListener('error', function onError(err) {
-      console.error('Player error', err);
-      this._reset(this.streamUrl);
-    }.bind(this));
+    this._audio.addEventListener('error', this._onError.bind(this));
+    this._audio.addEventListener('pause', this._onPause.bind(this));
+    this._audio.addEventListener('playing', this._onPlaying.bind(this));
+  },
 
-    this._audio.addEventListener('pause', function onPause() {
-      this._playing = false;
-    }.bind(this));
+  _removeEvents: function () {
+    this._audio.removeEventListener('error', this._onError.bind(this));
+    this._audio.removeEventListener('pause', this._onPause.bind(this));
+    this._audio.removeEventListener('playing', this._onPlaying.bind(this));
+  },
 
-    this._audio.addEventListener('playing', function onPlaying() {
-      this._playing = true;
-    }.bind(this));
+  _onError: function (err) {
+    console.error('Player error', err);
+  },
+
+  _onPause: function () {
+    this._playing = false;
+  },
+
+  _onPlaying: function () {
+    this._playing = true;
   },
 
   emitChange: function() {
@@ -87,8 +105,8 @@ PlayerStore.dispatchToken = AppDispatcher.register(function(payload) {
       PlayerStore._play();
       break;
 
-    case PlayerConstants.PLAYER_PAUSE:
-      PlayerStore._pause();
+    case PlayerConstants.PLAYER_STOP:
+      PlayerStore._stop();
       break;
 
     case PlayerConstants.PLAYER_SET_VOLUME:

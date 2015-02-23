@@ -1,32 +1,31 @@
 'use strict';
 
 var Q = require('q');
-var tracklist = require('./tracklist');
 var config = require('./config');
 var retries = 0;
 var logger = require('./logger');
 
+var tracklist = require('./services/tracklist');
+var current = require('./services/current');
+var next = require('./next');
+
 function loop() {
-  tracklist.current()
-  .then(function (track) {
-    if (!track) return tracklist.waitForNext().then(immediateLoop);
+  current.get(function (err, track) {
+    if (err) return failure(err);
+    if (!track) return waitForNext().then(immediateLoop);
+
     logger.log('Playing: ' + track.title);
-    return play(track)
-    .then(function () {
+    process.send({ type: 'play', title: track.title });
+
+    play(track, function (err) {
+      if (err) return failure(err);
       logger.log('End of track:' + track.title);
-    })
-    .then(tracklist.next)
-    .then(immediateLoop);
-  })
-  .fail(function (err) {
-    logger.error(err);
-
-    if (++retries >= config.maxRetries) {
-      retries = 0;
-      return tracklist.next().then(immediateLoop);
-    }
-
-    immediateLoop();
+      process.send({ type: 'finished' });
+      next(function (err) {
+        if (err) return failure(err);
+        immediateLoop();
+      });
+    });
   });
 }
 
@@ -36,17 +35,43 @@ function immediateLoop() {
   setImmediate(loop);
 }
 
-function play(track) {
-  var deferred = Q.defer();
-
+function play(track, callback) {
   track.play()
     .on('error', function (err) {
-      deferred.reject(err);
+      callback(err);
     })
     .on('end', function () {
-      deferred.resolve();
+      callback();
     })
     .pipe(process.stdout);
+}
+
+function waitForNext() {
+  var deferred = Q.defer();
+  tracklist.waitForNext(function (err, track) {
+    if (err) return deferred.reject(err);
+    track.playedAt = new Date();
+    current.set(track, function (err) {
+      if (err) return deferred.reject(err);
+      deferred.resolve(track);
+    });
+  });
 
   return deferred.promise;
+}
+
+function failure(err) {
+  logger.error(err);
+
+  if (++retries >= config.maxRetries) {
+    retries = 0;
+    next(function (err) {
+      if (err) return logger.error(err);
+      immediateLoop();
+    });
+
+    return;
+  }
+
+  immediateLoop();
 }

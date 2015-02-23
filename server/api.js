@@ -6,15 +6,19 @@ var cookieParser = require('cookie-parser');
 var morganLog = require('morgan');
 var favicon = require('serve-favicon');
 
-var tracklist = require('./tracklist');
-var redis = require('redis').createClient();
-var config = require('./config');
 var trackBuilder = require('./track_builder');
-var socket = require('./socket')();
 var playerState = require('./player_state');
-var listeners = [];
 var logger = require('./logger');
 var uniqueVisitor = require('./unique_visitor');
+// Events Socket.io
+require('./socket_events');
+
+var nextTrack = require('./next');
+var tracklist = require('./services/tracklist');
+var listeners = require('./services/listeners');
+var votes = require('./services/votes');
+var current = require('./services/current');
+var history = require('./services/history');
 
 module.exports = function (app, playerManager) {
   playerManager.stream.on('data', _sendChunk);
@@ -45,7 +49,7 @@ module.exports = function (app, playerManager) {
       res.header('Access-Control-Allow-Origin', req.headers.origin);
       res.header('Access-Control-Allow-Methods', allowedMethods);
       res.header('Access-Control-Allow-Headers', allowedHeaders);
-      if ('OPTIONS' === req.method) return res.status(200).end();
+      if ('OPTIONS' === req.method) return res.sendStatus(200);
     }
     next();
   }
@@ -56,30 +60,29 @@ module.exports = function (app, playerManager) {
   })
   .post(function (req, res) {
     if (!playerState.playing) playerManager.start();
-    res.status(201).end();
+    res.sendStatus(201);
   })
   .delete(function (req, res) {
     if (playerState.playing) playerManager.stop();
-    res.status(201).end();
+    res.sendStatus(201);
   });
 
   app.route('/tracks')
   .options(_allowCrossDomain)
   .get(function (req, res) {
-    tracklist.get()
-    .then(function (list) {
-      res.send(list);
-    }, function (err) {
-      res.status(503).send(err.message);
+    tracklist.find({}, function (err, tracks) {
+      if (err) return res.status(503).send(err.message);
+      res.send(tracks);
     });
   })
   .post(_allowCrossDomain, function (req, res) {
     if (!req.body.url) return res.status(400).send('You need to provide a track URL.');
     trackBuilder.fromString(req.body.url)
-    .then(tracklist.add)
     .then(function (track) {
-      socket.emit('tracks:new');
-      res.status(201).send(track);
+      tracklist.create(track, function (err) {
+        if (err) return res.status(500).send(err.message);
+        res.status(201).send(track);
+      });
     }, function (err) {
       res.status(500).send(err.message);
     });
@@ -87,47 +90,42 @@ module.exports = function (app, playerManager) {
 
   app.route('/current')
   .get(function (req, res) {
-    tracklist.current()
-    .then(function (track) {
-      if (!track) return res.send({});
+    current.get(function (err, track) {
+      if (err) return res.status(500).send(err);
 
-      redis.scard('jukebox:votes', function (err, count) {
-        if (err) return res.status(500).send(err);
-        track.votes = {
-          favorable: count,
-          total: config.minVotes
-        };
-        res.send(track);
+      votes.count(function (err, votesCount) {
+        if (err) return logger.log(err);
+        listeners.count(function (err, listenersCount) {
+          if (err) return logger.log(err);
+          track.votes = {
+            favorable: votesCount,
+            total: Math.round(listenersCount / 2)
+          };
+          res.send(track);
+        });
       });
-    }, function (err) {
-      res.status(500).send(err.message);
     });
   })
   .post(function (req, res) {
     var identifier = req.cookies.uid || req.ip; // shouldn't be `req.ip` but...
-    redis.sadd('jukebox:votes', identifier, function (err, newCount) {
+    votes.create(identifier, function (err, newCount) {
       if (err) return res.status(500).send(err);
-      res.send(201).end();
-      if (newCount > 0) {
-        socket.emit('current:votes');
-        _checkVotesNext();
-      }
+      res.sendStatus(201);
+      if (newCount > 0) _checkVotesNext();
     });
   })
   .delete(function (req, res) {
-    playerManager.stop();
-    tracklist.next().then(function () {
+    nextTrack(function (err) {
+      if (err) return res.status(500).send(err);
+      playerManager.stop();
       playerManager.start();
     });
-    res.status(201).end();
   });
 
   app.get('/history', function (req, res) {
-    tracklist.history()
-    .then(function (list) {
-      res.send(list);
-    }, function (err) {
-      res.status(500).send(err.message);
+    history.find({}, function (err, tracks) {
+      if (err) return res.status(500).send(err.message);
+      res.send(tracks);
     });
   });
 
@@ -140,10 +138,10 @@ module.exports = function (app, playerManager) {
       'Pragma': 'no-cache',
     });
 
-    _addListener(res);
+    listeners.add(req.cookies.uid, res);
 
     function _onEnd() {
-      _removeListener(res);
+      listeners.remove(req.cookies.uid, res);
     }
 
     res.on('close', _onEnd);
@@ -153,31 +151,26 @@ module.exports = function (app, playerManager) {
   /**
   * Check whether we need to skip the track.
   */
-  function _checkVotesNext() {
-    redis.scard('jukebox:votes', function (err, count) {
-      if (err) return logger.log(err);
-      if (count < config.minVotes) return;
-      tracklist.next();
-      playerManager.stop();
-      playerManager.start();
+  function _checkVotesNext(callback) {
+    votes.count(function (err, votesCount) {
+      if (err) return callback(err);
+      listeners.count(function (err, listenersCount) {
+        if (err) return callback(err);
+        if (votesCount < Math.round(listenersCount / 2)) return;
+        nextTrack(function (err) {
+          if (err) return callback(err);
+          playerManager.stop();
+          playerManager.start();
+        });
+      });
     });
   }
 };
 
-function _addListener(res) {
-  logger.log('Adding listener');
-  listeners.push(res);
-}
-
-function _removeListener(res) {
-  var idx = listeners.indexOf(res);
-  listeners.splice(idx, 1);
-  logger.log('Removed listener. ' + listeners.length + ' are left.');
-}
 
 // Listeners are 'res' objects
 function _sendChunk(chunk) {
-  listeners.forEach(function (listener) {
+  listeners.getAllSync().forEach(function (listener) {
     listener.write(chunk);
   });
 }

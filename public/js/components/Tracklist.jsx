@@ -1,19 +1,48 @@
 'use strict';
+/* global socket */
 
 var React = require('react/addons');
 var Track = require('./Track.jsx');
+var TracklistActions = require('../actions/TracklistActions');
+var SettingsStore = require('../stores/SettingsStore');
+var TracklistStore = require('../stores/TracklistStore');
+var notify = require('../utils/notify');
 
 module.exports = React.createClass({
+  getInitialState: function () {
+    return {
+      tracks: TracklistStore.get()
+    };
+  },
+  componentDidMount: function () {
+    TracklistStore.addChangeListener(this._onTracklistChange);
+    socket.on('tracklist:created', this._onTracklistCreated);
+    socket.on('tracklist:removed', this._onTracklistRemoved);
+    // Fetch init data
+    TracklistActions.fetch();
+  },
+  componentWillUnmount: function() {
+    TracklistStore.removeChangeListener(this._onTracklistChange);
+  },
+  _onTracklistChange: function () {
+    this.setState({ tracks: TracklistStore.get() });
+  },
+  _onTracklistCreated: function (track) {
+    TracklistActions.add(track);
+    if (SettingsStore.get('notify')) {
+      notify('New track added to the tracklist', track.title);
+    }
+  },
   _addTrack: function (event) {
     event.preventDefault();
     var trackUrl = this.refs.trackUrl.getDOMNode().value.trim();
     if (!trackUrl) return;
-    this.props.onTrackSubmit(trackUrl);
+    TracklistActions.addUrl(trackUrl);
     this.refs.trackUrl.getDOMNode().value = '';
     return;
   },
   render: function () {
-    var rows = this.props.tracks.map(function (track, i) {
+    var rows = this.state.tracks.map(function (track, i) {
       track.id = i + 1;
       return <Track key={i} track={track} fields={['id', 'title', 'artist', 'duration', 'icon']} />;
     }.bind(this));

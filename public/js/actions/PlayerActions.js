@@ -10,9 +10,9 @@ var PlayerActions = {
     });
   },
 
-  pause: function () {
+  stop: function () {
     AppDispatcher.handleViewAction({
-      actionType: PlayerConstants.PLAYER_PAUSE
+      actionType: PlayerConstants.PLAYER_STOP
     });
   },
 

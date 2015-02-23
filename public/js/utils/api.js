@@ -9,7 +9,6 @@ var api = {
 
     $.ajax({
       url: url,
-      dataType: 'json',
       data: data,
       type: method,
       success: function (data) {

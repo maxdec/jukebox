@@ -3,14 +3,12 @@
 var React = require('react/addons');
 var Slider = require('./Slider.jsx');
 var PlayerActions = require('../actions/PlayerActions');
-var SettingsActions = require('../actions/SettingsActions');
 var PlayerStore = require('../stores/PlayerStore');
 var SettingsStore = require('../stores/SettingsStore');
 
 module.exports = React.createClass({
   componentDidMount: function () {
     PlayerStore.addChangeListener(this._onChange);
-    PlayerActions.reset('/stream');
     if (SettingsStore.get('autoplay')) PlayerActions.play();
   },
   componentWillUnmount: function () {
@@ -26,9 +24,9 @@ module.exports = React.createClass({
     event.preventDefault();
     PlayerActions.play();
   },
-  _pause: function (event) {
+  _stop: function (event) {
     event.preventDefault();
-    PlayerActions.pause();
+    PlayerActions.stop();
   },
   _navigate: function (view) {
     return function (event) {
@@ -42,7 +40,7 @@ module.exports = React.createClass({
     var playing = PlayerStore.isPlaying();
     var playBtn;
     if (playing) {
-      playBtn = <a href onClick={this._pause}><i className="fa fa-pause"></i></a>;
+      playBtn = <a href onClick={this._stop}><i className="fa fa-stop"></i></a>;
     } else {
       playBtn = <a href onClick={this._play}><i className="fa fa-play"></i></a>;
     }

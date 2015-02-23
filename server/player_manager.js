@@ -4,9 +4,8 @@ var cp = require('child_process');
 var config = require('./config');
 var PassThrough = require('stream').PassThrough;
 var stream = new PassThrough();
-var eventHandlers = config.eventHandlers.map(function (eventHandlerName) {
-  return require('./event_handlers/' + eventHandlerName);
-});
+var progressHandler = require('./event_handlers/progress');
+
 var worker;
 var state = require('./player_state');
 var logger = require('./logger');
@@ -45,10 +44,7 @@ function _attachEvents() {
   });
 
   worker.on('message', logger.onMsg);
-
-  eventHandlers.forEach(function (eventHandler) {
-    if (worker) worker.on('message', throttle(eventHandler, 1000));
-  });
+  worker.on('message', throttle(progressHandler, 1000));
 }
 
 function _attachOutputs() {

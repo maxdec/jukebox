@@ -10,63 +10,95 @@ var History = require('./History.jsx');
 var Settings = require('./Settings.jsx');
 
 var CurrentActions = require('../actions/CurrentActions');
-var HistoryActions = require('../actions/HistoryActions');
-var TracklistActions = require('../actions/TracklistActions');
 var CurrentStore = require('../stores/CurrentStore');
-var HistoryStore = require('../stores/HistoryStore');
 var SettingsStore = require('../stores/SettingsStore');
-var TracklistStore = require('../stores/TracklistStore');
 var notify = require('../utils/notify');
 
 module.exports = React.createClass({
   getInitialState: function () {
-    return { view: 'current' };
+    return {
+      view: 'current',
+      current: CurrentStore.get(),
+    };
   },
   componentDidMount: function () {
-    // Stores listeners
-    CurrentStore.addChangeListener(this._onChange);
-    TracklistStore.addChangeListener(this._onChange);
-    HistoryStore.addChangeListener(this._onChange);
+    CurrentStore.addChangeListener(this._onCurrentChange);
+
     // Sockets listeners
-    socket.on('current:progress', this._trackProgress);
-    socket.on('current:new', this._newTrackPlaying);
-    socket.on('current:votes', this._newVotesNext);
-    socket.on('tracks:new', this._newTrackAdded);
+    [
+      'current:set',
+      'current:removed',
+      'current:position',
+      'listeners:created',
+      'listeners:removed',
+      'votes:created',
+      'votes:removed',
+    ].forEach(function (eventName) {
+      socket.on(eventName, this._onSocketMessage(eventName));
+    }.bind(this));
+
     // Fetch init data
     CurrentActions.fetch();
-    TracklistActions.fetch();
-    HistoryActions.fetch();
   },
   componentWillUnmount: function() {
-    CurrentStore.removeChangeListener(this._onChange);
-    TracklistStore.removeChangeListener(this._onChange);
-    HistoryStore.removeChangeListener(this._onChange);
+    CurrentStore.removeChangeListener(this._onCurrentChange);
   },
-  _onChange: function () {
-    this.forceUpdate();
+  _onCurrentChange: function () {
+    this.setState({ current: CurrentStore.get() });
   },
-  _trackProgress: function (perc) {
-    CurrentActions.progress(perc);
-  },
-  _newTrackPlaying: function () {
-    if (SettingsStore.get('notify')) notify('New track playing');
-    CurrentActions.fetch();
-    TracklistActions.fetch();
-    HistoryActions.fetch();
-  },
-  _newTrackAdded: function () {
-    if (SettingsStore.get('notify')) notify('New track added to the tracklist');
-    TracklistActions.fetch();
-  },
-  _newVotesNext: function () {
-    if (SettingsStore.get('notify')) notify('New vote for next track');
-    CurrentActions.fetch();
+  _onSocketMessage: function (eventName) {
+    var update = React.addons.update;
+
+    switch (eventName) {
+      case 'current:set':
+        return function (track) {
+          console.log(track.title);
+          if (SettingsStore.get('notify')) notify('New track playing', track.title);
+          CurrentActions.set(track);
+        }.bind(this);
+
+      case 'current:removed':
+        return function () {
+          CurrentActions.set({});
+        }.bind(this);
+
+      case 'current:position':
+        return function (perc) {
+          CurrentActions.progress(perc);
+        }.bind(this);
+
+      case 'listeners:created':
+        return function (count) {
+          var current = CurrentStore.get();
+          var newCurrent = update(current, { votes: { total: { $apply: function (x) { return x + count; }}}});
+          CurrentActions.set(newCurrent);
+        }.bind(this);
+
+      case 'listeners:removed':
+        return function (count) {
+          var current = CurrentStore.get();
+          var newCurrent = update(current, { votes: { total: { $apply: function (x) { return x - count; }}}});
+          CurrentActions.set(newCurrent);
+        }.bind(this);
+
+      case 'votes:created':
+        return function (count) {
+          if (SettingsStore.get('notify')) notify('New vote for next track');
+          var current = CurrentStore.get();
+          var newCurrent = update(current, { votes: { favorable: { $apply: function (x) { return x + count; }}}});
+          CurrentActions.set(newCurrent);
+        }.bind(this);
+
+      case 'votes:removed':
+        return function (count) {
+          var current = CurrentStore.get();
+          var newCurrent = update(current, { votes: { favorable: { $apply: function (x) { return x - count; }}}});
+          CurrentActions.set(newCurrent);
+        }.bind(this);
+    }
   },
   _submitVote: function () {
     CurrentActions.voteNext();
-  },
-  _submitTrack: function (trackUrl) {
-    TracklistActions.add(trackUrl);
   },
   _navigate: function (view) {
     if (view in { current: 1, history: 1, settings: 1 }) {
@@ -74,18 +106,14 @@ module.exports = React.createClass({
     }
   },
   render: function () {
-    var current = CurrentStore.get();
-    var tracklist = TracklistStore.get();
-    var history = HistoryStore.get();
-
     var mainView;
     if (this.state.view === 'current') {
       mainView = <div>
-        <Current track={current} onVote={this._submitVote} />
-        <Tracklist tracks={tracklist} onTrackSubmit={this._submitTrack} />
+        <Current track={this.state.current} onVote={this._submitVote} />
+        <Tracklist />
       </div>;
     } else if (this.state.view === 'history') {
-      mainView = <History tracks={history} onTrackSubmit={this._submitTrack} />;
+      mainView = <History />;
     } else if (this.state.view === 'settings') {
       mainView = <Settings />;
     }

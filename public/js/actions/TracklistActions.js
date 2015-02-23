@@ -17,14 +17,16 @@ var TracklistActions = {
       data: tracks
     });
   },
-  add: function (trackUrl) {
-    api.tracks.post({ url: trackUrl }, function (err, track) {
+  add: function (track) {
+    AppDispatcher.handleViewAction({
+      actionType: TracklistConstants.TRACKLIST_ADD,
+      data: track
+    });
+  },
+  addUrl: function (trackUrl) {
+    api.tracks.post({ url: trackUrl }, function (err) {
       if (err) return console.error(err);
-      AppDispatcher.handleViewAction({
-        actionType: TracklistConstants.TRACKLIST_ADD,
-        data: track
-      });
-    }.bind(this));
+    });
   },
   remove: function (index) {
     AppDispatcher.handleViewAction({

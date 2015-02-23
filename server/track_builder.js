@@ -10,8 +10,8 @@ var sources = config.sources.map(function (sourceName) {
 
 module.exports = {
   fromString: fromString,
-  fromObject: fromObject,
-  fromJSON: fromJSON
+  fromObjectSync: fromObjectSync,
+  fromJSONSync: fromJSONSync
 };
 
 /**
@@ -36,19 +36,17 @@ function fromString(input) {
 }
 
 /**
- * Returns a Promise resolving to a Track of the correct source.
- * Input is an object (JSON from Redis).
+ * Returns a Track of the correct source.
+ * Input is a JS object.
  */
-function fromObject(object) {
-  return Q.fcall(function () {
-    return new sourcesMap[object.platform].Track(object);
-  });
+function fromObjectSync(object) {
+  return new sourcesMap[object.platform].Track(object);
 }
 
 /**
- * Returns a Promise resolving to a Track of the correct source.
- * Input is an JSON string.
+ * Returns a Track of the correct source.
+ * Input is an JSON string (ie. from Redis).
  */
-function fromJSON(string) {
-  return fromObject(JSON.parse(string));
+function fromJSONSync(string) {
+  return fromObjectSync(JSON.parse(string));
 }
