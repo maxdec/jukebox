@@ -92,6 +92,7 @@ module.exports = function (app, playerManager) {
   .get(function (req, res) {
     current.get(function (err, track) {
       if (err) return res.status(500).send(err);
+      if (!track) return res.send({ votes: {}});
 
       votes.count(function (err, votesCount) {
         if (err) return logger.log(err);
