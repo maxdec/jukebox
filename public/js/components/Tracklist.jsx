@@ -2,7 +2,6 @@
 /* global socket */
 
 var React = require('react/addons');
-var PureRenderMixin = React.addons.PureRenderMixin;
 var Track = require('./Track.jsx');
 var TracklistActions = require('../actions/TracklistActions');
 var SettingsStore = require('../stores/SettingsStore');
@@ -10,7 +9,6 @@ var TracklistStore = require('../stores/TracklistStore');
 var notify = require('../utils/notify');
 
 module.exports = React.createClass({
-  mixins: [PureRenderMixin],
   getInitialState: function () {
     return {
       tracks: TracklistStore.get()
@@ -41,7 +39,6 @@ module.exports = React.createClass({
     if (!trackUrl) return;
     TracklistActions.addUrl(trackUrl);
     this.refs.trackUrl.getDOMNode().value = '';
-    return;
   },
   render: function () {
     var rows = this.state.tracks.map(function (track, i) {
