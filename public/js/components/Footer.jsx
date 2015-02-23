@@ -1,9 +1,11 @@
 'use strict';
 
 var React = require('react/addons');
+var PureRenderMixin = React.addons.PureRenderMixin;
 var bookmarklet = require('../utils/bookmarklet');
 
 module.exports = React.createClass({
+  mixins: [PureRenderMixin],
   render: function () {
     return (
       <div className="row">

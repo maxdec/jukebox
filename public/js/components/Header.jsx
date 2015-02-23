@@ -1,12 +1,20 @@
 'use strict';
 
 var React = require('react/addons');
+var PureRenderMixin = React.addons.PureRenderMixin;
 var Slider = require('./Slider.jsx');
 var PlayerActions = require('../actions/PlayerActions');
 var PlayerStore = require('../stores/PlayerStore');
 var SettingsStore = require('../stores/SettingsStore');
 
 module.exports = React.createClass({
+  mixins: [PureRenderMixin],
+  getInitialState: function () {
+    return {
+      playing: PlayerStore.isPlaying(),
+      volume: PlayerStore.getVolume()
+    };
+  },
   componentDidMount: function () {
     PlayerStore.addChangeListener(this._onChange);
     if (SettingsStore.get('autoplay')) PlayerActions.play();
@@ -15,7 +23,10 @@ module.exports = React.createClass({
     PlayerStore.removeChangeListener(this._onChange);
   },
   _onChange: function () {
-    this.forceUpdate();
+    this.setState({
+      playing: PlayerStore.isPlaying(),
+      volume: PlayerStore.getVolume()
+    });
   },
   _setVolume: function (perc) {
     PlayerActions.volume(perc);
@@ -36,10 +47,8 @@ module.exports = React.createClass({
   },
   render: function () {
     var cx = React.addons.classSet;
-    var volume = PlayerStore.getVolume();
-    var playing = PlayerStore.isPlaying();
     var playBtn;
-    if (playing) {
+    if (this.state.playing) {
       playBtn = <a href onClick={this._stop}><i className="fa fa-stop"></i></a>;
     } else {
       playBtn = <a href onClick={this._play}><i className="fa fa-play"></i></a>;
@@ -51,7 +60,7 @@ module.exports = React.createClass({
           <ul className="nav masthead-nav pull-right">
             <li className="volume">
               <i className="fa fa-volume-up"></i>
-              <Slider perc={volume} onChange={this._setVolume} />
+              <Slider perc={this.state.volume} onChange={this._setVolume} />
             </li>
             <li>{playBtn}</li>
             <li className={cx({ active: this.props.view === 'current' })}><a href onClick={this._navigate('current')}>Playing</a></li>

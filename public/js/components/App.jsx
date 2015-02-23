@@ -2,6 +2,7 @@
 /* global socket */
 
 var React = require('react/addons');
+var PureRenderMixin = React.addons.PureRenderMixin;
 var Header = require('./Header.jsx');
 var Footer = require('./Footer.jsx');
 var Current = require('./Current.jsx');
@@ -15,6 +16,7 @@ var SettingsStore = require('../stores/SettingsStore');
 var notify = require('../utils/notify');
 
 module.exports = React.createClass({
+  mixins: [PureRenderMixin],
   getInitialState: function () {
     return {
       view: 'current',

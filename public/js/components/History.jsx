@@ -1,11 +1,13 @@
 'use strict';
 
 var React = require('react/addons');
+var PureRenderMixin = React.addons.PureRenderMixin;
 var Track = require('./Track.jsx');
 var HistoryActions = require('../actions/HistoryActions');
 var HistoryStore = require('../stores/HistoryStore');
 
 module.exports = React.createClass({
+  mixins: [PureRenderMixin],
   getInitialState: function () {
     return {
       tracks: HistoryStore.get()

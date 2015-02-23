@@ -1,11 +1,13 @@
 'use strict';
 
 var React = require('react/addons');
+var PureRenderMixin = React.addons.PureRenderMixin;
 var helpers = require('../utils/helpers');
 var TracklistActions = require('../actions/TracklistActions');
 
 module.exports = React.createClass({
-  openUrl: function (event) {
+  mixins: [PureRenderMixin],
+  _openUrl: function (event) {
     event.preventDefault();
     helpers.openExt(this.props.track.url);
   },
@@ -48,7 +50,7 @@ module.exports = React.createClass({
     }.bind(this));
 
     return (
-      <tr onClick={this.openUrl}>
+      <tr onClick={this._openUrl}>
         {tds}
       </tr>
     );

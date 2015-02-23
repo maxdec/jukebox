@@ -2,10 +2,12 @@
 /* global Notification */
 
 var React = require('react/addons');
+var PureRenderMixin = React.addons.PureRenderMixin;
 var SettingsActions = require('../actions/SettingsActions');
 var SettingsStore = require('../stores/SettingsStore');
 
 module.exports = React.createClass({
+  mixins: [PureRenderMixin],
   getInitialState: function () {
     return {
       notify: SettingsStore.get('notify'),

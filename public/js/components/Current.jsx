@@ -1,9 +1,11 @@
 'use strict';
 
 var React = require('react/addons');
+var PureRenderMixin = React.addons.PureRenderMixin;
 var helpers = require('../utils/helpers');
 
 module.exports = React.createClass({
+  mixins: [PureRenderMixin],
   render: function () {
     var cx = React.addons.classSet;
     var iconClasses = cx({

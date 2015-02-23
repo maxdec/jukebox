@@ -1,8 +1,10 @@
 'use strict';
 
 var React = require('react/addons');
+var PureRenderMixin = React.addons.PureRenderMixin;
 
 module.exports = React.createClass({
+  mixins: [PureRenderMixin],
   getInitialState: function () {
     return { perc: this.props.perc || 50 };
   },
