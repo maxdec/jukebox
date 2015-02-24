@@ -20,11 +20,6 @@ var CurrentStore = objectAssign({}, EventEmitter.prototype, {
     this._current = track;
   },
 
-  _setVotes: function (nb) {
-    if (!this._current || !this._current.votes) return;
-    this._current.votes.favorable = nb;
-  },
-
   _progress: function (perc) {
     this._current.progress = perc;
   },
@@ -55,10 +50,6 @@ CurrentStore.dispatchToken = AppDispatcher.register(function(payload) {
   switch(action.actionType) {
     case CurrentConstants.CURRENT_SET:
       CurrentStore._set(action.data);
-      break;
-
-    case CurrentConstants.CURRENT_SET_VOTES:
-      CurrentStore._setVotes(action.data);
       break;
 
     case CurrentConstants.CURRENT_PROGRESS:

@@ -22,18 +22,7 @@ var CurrentActions = {
       actionType: CurrentConstants.CURRENT_PROGRESS,
       data: perc
     });
-  },
-  voteNext: function() {
-    api.current.post(function (err) {
-      if (err) console.error(err);
-    });
-  },
-  setVotes: function (votes) {
-    AppDispatcher.handleViewAction({
-      actionType: CurrentConstants.CURRENT_SET_VOTES,
-      data: votes
-    });
-  },
+  }
 };
 
 module.exports = CurrentActions;

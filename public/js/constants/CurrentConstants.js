@@ -4,7 +4,6 @@ var keyMirror = require('keymirror');
 
 var CurrentConstants = keyMirror({
   CURRENT_SET: null,
-  CURRENT_SET_VOTES: null,
   CURRENT_PROGRESS: null,
 });
 
