@@ -4,12 +4,10 @@ var cp = require('child_process');
 var config = require('./config');
 var PassThrough = require('stream').PassThrough;
 var stream = new PassThrough();
-var progressHandler = require('./event_handlers/progress');
 
 var worker;
 var state = require('./player_state');
 var logger = require('./logger');
-var throttle = require('./throttle');
 
 function start() {
   console.log('Worker started');
@@ -18,9 +16,8 @@ function start() {
     return;
   }
 
-  var args = [__dirname + '/player_worker.js'];
-  worker = cp.spawn(process.execPath, args, {
-    stdio: [0, 'pipe', 2, 'ipc'],
+  worker = cp.fork(__dirname + '/player_worker.js', {
+    silent: true,
     cwd: __dirname
   });
   _attachEvents();
@@ -44,7 +41,6 @@ function _attachEvents() {
   });
 
   worker.on('message', logger.onMsg);
-  worker.on('message', throttle(progressHandler, 1000));
 }
 
 function _attachOutputs() {

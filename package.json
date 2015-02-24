@@ -30,6 +30,7 @@
     "redis": "^0.10.3",
     "serve-favicon": "^2.0.0",
     "socket.io": "^1.0.6",
+    "socket.io-client": "^1.3.4",
     "stream-transcoder": "0.0.3",
     "throttle": "^1.0.3",
     "unirest": "^0.2.7",

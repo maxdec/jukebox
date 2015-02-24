@@ -2,7 +2,7 @@
 
 var EventEmitter = require('events').EventEmitter;
 var objectAssign = require('object-assign');
-var redis = require('../redis');
+var redis = require('../redis').client;
 var logger = require('../logger');
 var key = 'jukebox:listeners';
 

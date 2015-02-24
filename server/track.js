@@ -1,6 +1,8 @@
 'use strict';
 
 var logger = require('./logger');
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
 
 function Track(fullTrack) {
   this.title     = fullTrack.title;
@@ -15,7 +17,10 @@ function Track(fullTrack) {
   this.position  = fullTrack.position;
   this.size      = fullTrack.size;
   this.bitrate   = fullTrack.bitrate;
+  EventEmitter.call(this);
 }
+
+util.inherits(Track, EventEmitter);
 
 Track.prototype.play = function () {
   logger.log('Needs to be defined in the children.');

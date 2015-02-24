@@ -24,4 +24,7 @@ function _newRedisClient(port, server) {
   return client;
 }
 
-module.exports = _newRedisClient();
+module.exports = {
+  client: _newRedisClient(),
+  sub: _newRedisClient()
+};

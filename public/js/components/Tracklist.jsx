@@ -1,12 +1,9 @@
 'use strict';
-/* global socket */
 
 var React = require('react/addons');
 var Track = require('./Track.jsx');
 var TracklistActions = require('../actions/TracklistActions');
-var SettingsStore = require('../stores/SettingsStore');
 var TracklistStore = require('../stores/TracklistStore');
-var notify = require('../utils/notify');
 
 module.exports = React.createClass({
   getInitialState: function () {
@@ -16,8 +13,6 @@ module.exports = React.createClass({
   },
   componentDidMount: function () {
     TracklistStore.addChangeListener(this._onTracklistChange);
-    socket.on('tracklist:created', this._onTracklistCreated);
-    socket.on('tracklist:removed', this._onTracklistRemoved);
     // Fetch init data
     TracklistActions.fetch();
   },
@@ -26,12 +21,6 @@ module.exports = React.createClass({
   },
   _onTracklistChange: function () {
     this.setState({ tracks: TracklistStore.get() });
-  },
-  _onTracklistCreated: function (track) {
-    TracklistActions.add(track);
-    if (SettingsStore.get('notify')) {
-      notify('New track added to the tracklist', track.title);
-    }
   },
   _addTrack: function (event) {
     event.preventDefault();

@@ -20,8 +20,8 @@ module.exports = {
  * File Track
  */
 function FileTrack(track) {
-  if (track.platform) _initFromInternal.apply(this, arguments);
-  else _initFromExternal.apply(this, arguments);
+  if (track.platform) this._initFromInternal.apply(this, arguments);
+  else this._initFromExternal.apply(this, arguments);
 }
 util.inherits(FileTrack, Track);
 
@@ -44,18 +44,10 @@ FileTrack.prototype.play = function play() {
 
   output.on('data', function (chunk) {
     currentLength += chunk.length;
-    process.send({
-      type: 'progress',
-      current: currentLength,
-      total: totalLength
-    });
-  });
+    this.emit('progress', { current: currentLength, total: totalLength });
+  }.bind(this));
 
-  process.send({
-    type: 'progress',
-    current: currentLength,
-    total: totalLength
-  });
+  this.emit('progress', { current: currentLength, total: totalLength });
 
   return output;
 };
@@ -115,8 +107,7 @@ function resolve(trackUrl) {
 /**
  * Private helpers
  */
-function _initFromExternal(track) {
-  /* jshint validthis:true */
+FileTrack.prototype._initFromExternal = function (track) {
   this.title     = track.title;
   this.artist    = track.artist;
   this.duration  = track.duration;
@@ -126,9 +117,8 @@ function _initFromExternal(track) {
   this.platform  = 'file';
   this.bitrate   = track.bitrate;
   this.size      = track.size;
-}
+};
 
-function _initFromInternal() {
-  /* jshint validthis:true */
+FileTrack.prototype._initFromInternal = function () {
   FileTrack.super_.apply(this, arguments);
-}
+};

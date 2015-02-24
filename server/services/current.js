@@ -2,7 +2,7 @@
 
 var EventEmitter = require('events').EventEmitter;
 var objectAssign = require('object-assign');
-var redis = require('../redis');
+var redis = require('../redis').client;
 var trackBuilder = require('../track_builder');
 var key = 'jukebox:current';
 
@@ -19,7 +19,7 @@ module.exports = objectAssign({}, EventEmitter.prototype, {
     callback = callback || function () {};
     redis.set(key, JSON.stringify(track), function (err) {
       if (err) return callback(err);
-      this.emit('created', track);
+      this.emit('set', track);
       callback();
     }.bind(this));
   },

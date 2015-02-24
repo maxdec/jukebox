@@ -20,8 +20,8 @@ module.exports = {
  * Youtube Track
  */
 function YoutubeTrack(track) {
-  if (track.platform) _initFromInternal.apply(this, arguments);
-  else _initFromExternal.apply(this, arguments);
+  if (track.platform) this._initFromInternal.apply(this, arguments);
+  else this._initFromExternal.apply(this, arguments);
 }
 util.inherits(YoutubeTrack, Track);
 
@@ -53,12 +53,8 @@ YoutubeTrack.prototype.play = function play() {
     })
     .on('data', function (chunk) {
       currentLength += chunk.length;
-      process.send({
-        type: 'progress',
-        current: currentLength,
-        total: totalLength
-      });
-    })
+      this.emit('progress', { current: currentLength, total: totalLength });
+    }.bind(this))
     .on('error', function () {
       ytStream.push(null);
     })
@@ -112,8 +108,7 @@ function resolve(trackUrl) {
 /**
  * Private helpers
  */
-function _initFromExternal(track) {
-  /* jshint validthis:true */
+ YoutubeTrack.prototype._initFromExternal = function (track) {
   this.title     = track.title.$t;
   if (track.author && track.author[0]) {
     this.artist = track.author[0].name.$t;
@@ -124,9 +119,8 @@ function _initFromExternal(track) {
   this.cover     = track.media$group.media$thumbnail[1].url;
   this.createdAt = new Date();
   this.platform  = 'youtube';
-}
+};
 
-function _initFromInternal() {
-  /* jshint validthis:true */
+YoutubeTrack.prototype._initFromInternal = function () {
   YoutubeTrack.super_.apply(this, arguments);
-}
+};

@@ -21,8 +21,8 @@ module.exports = {
  * Soundcloud Track
  */
 function SoundcloudTrack(track) {
-  if (track.platform) _initFromInternal.apply(this, arguments);
-  else _initFromExternal.apply(this, arguments);
+  if (track.platform) this._initFromInternal.apply(this, arguments);
+  else this._initFromExternal.apply(this, arguments);
 }
 util.inherits(SoundcloudTrack, Track);
 
@@ -30,7 +30,7 @@ util.inherits(SoundcloudTrack, Track);
  * Returns an mp3 stream from Soundcloud.
  */
 SoundcloudTrack.prototype.play = function play() {
-  return _download(this.streamUrl, this.position);
+  return this._download(this.streamUrl, this.position);
 };
 
 /**
@@ -72,8 +72,7 @@ function resolve(trackUrl) {
 /**
  * Private helpers
  */
-function _initFromExternal(track) {
-  /* jshint validthis:true */
+ SoundcloudTrack.prototype._initFromExternal = function (track) {
   this.title     = track.title;
   this.artist    = track.user.username;
   this.duration  = track.duration;
@@ -82,19 +81,18 @@ function _initFromExternal(track) {
   this.cover     = track.artwork_url;
   this.createdAt = new Date();
   this.platform  = 'soundcloud';
-}
+};
 
-function _initFromInternal() {
-  /* jshint validthis:true */
+SoundcloudTrack.prototype._initFromInternal = function () {
   SoundcloudTrack.super_.apply(this, arguments);
-}
+};
 
 /**
  * Returns a stream with the mp3 data from Soundcloud.
  * Also performs recurrently to follow redirections.
  * Emits `progress` events.
  */
-function _download(streamUrl, position) {
+ SoundcloudTrack.prototype._download = function (streamUrl, position) {
   // do not add the clientId after a redirection
   if (streamUrl.indexOf('Key-Pair-Id') < 0) {
     streamUrl += '?client_id=' + config.soundcloud.clientId;
@@ -116,7 +114,7 @@ function _download(streamUrl, position) {
 
   https.get(options, function (res) {
     if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-      return _download(res.headers.location, position).pipe(output);
+      return this._download(res.headers.location, position).pipe(output);
     } else if (res.statusCode >= 400 ) {
       // 404 or whatever, we skip
       output.end();
@@ -134,22 +132,14 @@ function _download(streamUrl, position) {
       currentLength = 0;
     }
 
-    process.send({
-      type: 'progress',
-      current: currentLength,
-      total: totalLength
-    });
+    this.emit('progress', { current: currentLength, total: totalLength });
 
     res.on('data', function (chunk) {
       currentLength += chunk.length;
-      process.send({
-        type: 'progress',
-        current: currentLength,
-        total: totalLength
-      });
-    }).pipe(output);
+      this.emit('progress', { current: currentLength, total: totalLength });
+    }.bind(this)).pipe(output);
 
-  }).end();
+  }.bind(this)).end();
 
   return output;
-}
+};

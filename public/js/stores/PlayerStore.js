@@ -5,9 +5,16 @@ var PlayerConstants = require('../constants/PlayerConstants');
 var EventEmitter = require('events').EventEmitter;
 var objectAssign = require('object-assign');
 
+var mediaErrors = {
+  1: 'MEDIA_ERR_ABORTED - fetching process aborted by user',
+  2: 'MEDIA_ERR_NETWORK - error occurred when downloading',
+  3: 'MEDIA_ERR_DECODE - error occurred when decoding',
+  4: 'MEDIA_ERR_SRC_NOT_SUPPORTED - audio/video not supported'
+};
+
 var PlayerStore = objectAssign({}, EventEmitter.prototype, {
   _audio: null,
-  _streamUrl: '//vagrant:3000/stream?cache-buster=' + Date.now(),
+  _streamUrl: '/stream?cache-buster=' + Date.now(),
   _playing: false,
   _volume: 0.5,
 
@@ -65,8 +72,13 @@ var PlayerStore = objectAssign({}, EventEmitter.prototype, {
     this._audio.removeEventListener('playing', this._onPlaying.bind(this));
   },
 
-  _onError: function (err) {
-    console.error('Player error', err);
+  _onError: function () {
+    this._playing = false;
+    try {
+      console.error('Player error', mediaErrors[this._audio.error.code]);
+    } catch(e) {}
+
+    this._stop();
   },
 
   _onPause: function () {

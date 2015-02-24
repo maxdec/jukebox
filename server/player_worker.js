@@ -8,6 +8,8 @@ var logger = require('./logger');
 var tracklist = require('./services/tracklist');
 var current = require('./services/current');
 var next = require('./next');
+// Send services events through redis pub/sub
+require('./redis_events');
 
 function loop() {
   current.get(function (err, track) {
@@ -15,12 +17,11 @@ function loop() {
     if (!track) return waitForNext().then(immediateLoop);
 
     logger.log('Playing: ' + track.title);
-    process.send({ type: 'play', title: track.title });
+    track.on('progress', _progressListener);
 
     play(track, function (err) {
       if (err) return failure(err);
       logger.log('End of track:' + track.title);
-      process.send({ type: 'finished' });
       next(function (err) {
         if (err) return failure(err);
         immediateLoop();
@@ -75,3 +76,11 @@ function failure(err) {
 
   immediateLoop();
 }
+
+function _progressListener(data) {
+  current.updateCurrentPosition(data.current, data.total);
+}
+
+process.on('uncaughtException', function(err) {
+  logger.log('Caught exception: ' + err);
+});

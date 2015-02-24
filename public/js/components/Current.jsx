@@ -1,38 +1,66 @@
 'use strict';
 
 var React = require('react/addons');
-var PureRenderMixin = React.addons.PureRenderMixin;
+var cx = React.addons.classSet;
 var helpers = require('../utils/helpers');
+var CurrentActions = require('../actions/CurrentActions');
+var VotesActions = require('../actions/VotesActions');
+var CurrentStore = require('../stores/CurrentStore');
+var VotesStore = require('../stores/VotesStore');
 
 module.exports = React.createClass({
-  mixins: [PureRenderMixin],
+  getInitialState: function () {
+    return {
+      track: CurrentStore.get(),
+      votes: VotesStore.get()
+    };
+  },
+  componentDidMount: function () {
+    CurrentStore.addChangeListener(this._onCurrentChange);
+    VotesStore.addChangeListener(this._onVotesChange);
+    // Fetch init data
+    CurrentActions.fetch();
+    VotesActions.fetch();
+  },
+  componentWillUnmount: function() {
+    CurrentStore.removeChangeListener(this._onCurrentChange);
+    VotesStore.removeChangeListener(this._onVotesChange);
+  },
+  _onCurrentChange: function () {
+    this.setState({ track: CurrentStore.get() });
+  },
+  _onVotesChange: function () {
+    this.setState({ votes: VotesStore.get() });
+  },
+  _submitVote: function () {
+    VotesActions.doVote();
+  },
   render: function () {
-    var cx = React.addons.classSet;
     var iconClasses = cx({
       'fa': true,
       'fa-fw': true,
       'fa-2x': true,
-      'fa-soundcloud': this.props.track.platform === 'soundcloud',
-      'fa-youtube-play': this.props.track.platform === 'youtube'
+      'fa-soundcloud': this.state.track.platform === 'soundcloud',
+      'fa-youtube-play': this.state.track.platform === 'youtube'
     });
 
-    var progress = { width: (this.props.track.progress || 0) + '%' };
+    var progress = { width: (this.state.track.progress || 0) + '%' };
 
     var content;
-    if (this.props.track.title) {
+    if (this.state.track.title) {
       content = <div className="inner cover">
-        <a href={this.props.track.url} target="_blank">
+        <a href={this.state.track.url} target="_blank">
           <i className={iconClasses}></i>
-          <img src={this.props.track.cover} alt="Cover" />
+          <img src={this.state.track.cover} alt="Cover" />
           <div className="progress">
             <div className="progress-bar progress-bar-danger" style={progress}></div>
           </div>
         </a>
-        <h2 className="cover-heading">{this.props.track.title}</h2>
-        <p className="lead">{this.props.track.artist} • {helpers.duration(this.props.track.duration)}</p>
+        <h2 className="cover-heading">{this.state.track.title}</h2>
+        <p className="lead">{this.state.track.artist} • {helpers.duration(this.state.track.duration)}</p>
         <p className="lead">
-          <button className="btn btn-default" onClick={this.props.onVote}>
-            <i className="fa fa-fast-forward"></i> {this.props.track.votes.favorable}/{this.props.track.votes.total}
+          <button className="btn btn-default" onClick={this._submitVote}>
+            <i className="fa fa-fast-forward"></i> {this.state.votes.favorable}/{this.state.votes.total}
           </button>
         </p>
       </div>;

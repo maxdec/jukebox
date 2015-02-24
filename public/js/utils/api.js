@@ -42,12 +42,17 @@ var api = {
     get: function (callback) {
       api.req('GET', '/current', callback);
     },
-    post: function (callback) {
-      api.req('POST', '/current', callback);
-    },
     delete: function (callback) {
       api.req('DELETE', '/current', callback);
     }
+  },
+  votes: {
+    get: function (callback) {
+      api.req('GET', '/votes', callback);
+    },
+    post: function (callback) {
+      api.req('POST', '/votes', callback);
+    },
   },
   history: {
     get: function (callback) {

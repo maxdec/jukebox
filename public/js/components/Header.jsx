@@ -1,14 +1,12 @@
 'use strict';
 
 var React = require('react/addons');
-var PureRenderMixin = React.addons.PureRenderMixin;
 var Slider = require('./Slider.jsx');
 var PlayerActions = require('../actions/PlayerActions');
 var PlayerStore = require('../stores/PlayerStore');
 var SettingsStore = require('../stores/SettingsStore');
 
 module.exports = React.createClass({
-  mixins: [PureRenderMixin],
   getInitialState: function () {
     return {
       playing: PlayerStore.isPlaying(),

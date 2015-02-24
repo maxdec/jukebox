@@ -92,17 +92,27 @@ module.exports = function (app, playerManager) {
   .get(function (req, res) {
     current.get(function (err, track) {
       if (err) return res.status(500).send(err);
-      if (!track) return res.send({ votes: {}});
+      if (!track) return res.send({});
+      res.send(track);
+    });
+  })
+  .delete(function (req, res) {
+    nextTrack(function (err) {
+      if (err) return res.status(500).send(err);
+      playerManager.stop();
+      playerManager.start();
+    });
+  });
 
-      votes.count(function (err, votesCount) {
+  app.route('/votes')
+  .get(function (req, res) {
+    votes.count(function (err, votesCount) {
+      if (err) return logger.log(err);
+      listeners.count(function (err, listenersCount) {
         if (err) return logger.log(err);
-        listeners.count(function (err, listenersCount) {
-          if (err) return logger.log(err);
-          track.votes = {
-            favorable: votesCount,
-            total: Math.round(listenersCount / 2)
-          };
-          res.send(track);
+        res.send({
+          favorable: votesCount,
+          total: Math.round(listenersCount / 2)
         });
       });
     });
@@ -113,13 +123,6 @@ module.exports = function (app, playerManager) {
       if (err) return res.status(500).send(err);
       res.sendStatus(201);
       if (newCount > 0) _checkVotesNext();
-    });
-  })
-  .delete(function (req, res) {
-    nextTrack(function (err) {
-      if (err) return res.status(500).send(err);
-      playerManager.stop();
-      playerManager.start();
     });
   });
 
