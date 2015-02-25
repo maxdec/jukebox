@@ -23,7 +23,7 @@ module.exports = React.createClass({
 
     return (
       <div className="slider progress" ref="slider" onClick={this._handleClick}>
-        <div className="progress-bar" style={barStyle}></div>
+        <div className="progress-bar progress-bar-danger" style={barStyle}></div>
       </div>
     );
   }
