@@ -78,11 +78,16 @@ module.exports = function (app, playerManager) {
   .post(_allowCrossDomain, function (req, res) {
     if (!req.body.url) return res.status(400).send('You need to provide a track URL.');
     trackBuilder.fromString(req.body.url)
-    .then(function (track) {
-      tracklist.create(track, function (err) {
-        if (err) return res.status(500).send(err.message);
-        res.status(201).send(track);
-      });
+    .then(function (trackOrTracks) {
+      res.status(201).send(trackOrTracks);
+
+      if (Array.isArray(trackOrTracks)) {
+        trackOrTracks.forEach(function (track) {
+          tracklist.create(track);
+        });
+      } else {
+        tracklist.create(trackOrTracks);
+      }
     }, function (err) {
       res.status(500).send(err.message);
     });

@@ -20,19 +20,21 @@ module.exports = {
  * Input is a String (track url).
  */
 function fromString(input) {
-  var deferred = Q.defer();
-
-  var incorrect = sources.every(function (source) {
-    if (source.detectOnInput(input)) {
-      source.resolve(input).then(deferred.resolve);
-      return false;
+  var source;
+  var found = sources.some(function (src) {
+    if (src.detectOnInput(input)) {
+      source = src;
+      return true;
     }
-    return true;
   });
 
-  if (incorrect) deferred.reject('The input does not match any sources.');
+  if (!found) {
+    return Q.fcall(function () {
+      throw new Error('The input does not match any sources.');
+    });
+  }
 
-  return deferred.promise;
+  return source.resolve(input);
 }
 
 /**

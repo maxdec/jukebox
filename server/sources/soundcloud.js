@@ -56,14 +56,24 @@ function resolve(trackUrl) {
   })
   .end(function (response) {
     if (response.error) return deferred.reject(response.error);
-    if (response.body.kind !== 'track') {
-      return deferred.reject('This is not a track.');
+    if (response.body.kind === 'track') {
+      var track = response.body;
+      // Better image resolution
+      track.artwork_url = track.artwork_url.replace('large.jpg', 't300x300.jpg');
+      track.bitrate = 128 * 1000;
+      deferred.resolve(new SoundcloudTrack(track));
+    } else if (response.body.kind === 'playlist') {
+      var tracks = response.body.tracks.map(function (tr) {
+        // Better image resolution
+        tr.artwork_url = tr.artwork_url.replace('large.jpg', 't300x300.jpg');
+        tr.bitrate = 128 * 1000;
+        return new SoundcloudTrack(tr);
+      });
+
+      deferred.resolve(tracks);
+    } else {
+      deferred.reject('This is not a track.');
     }
-    var track = response.body;
-    // Better image resolution
-    track.artwork_url = track.artwork_url.replace('large.jpg', 't300x300.jpg');
-    track.bitrate = 128 * 1000;
-    deferred.resolve(new SoundcloudTrack(track));
   });
 
   return deferred.promise;
