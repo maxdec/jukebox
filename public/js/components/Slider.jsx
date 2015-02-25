@@ -7,7 +7,7 @@ module.exports = React.createClass({
     return { perc: this.props.perc || 50 };
   },
   _handleClick: function (event) {
-    var target  = event.target || event.srcElement;
+    var target  = event.currentTarget;
     var rect    = target.getBoundingClientRect();
     var offsetX = event.clientX - rect.left;
 
