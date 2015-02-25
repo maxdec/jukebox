@@ -64,9 +64,8 @@ function _onTracklistCreated (track) {
   }
 }
 
-function _onTracklistRemoved (track) {
+function _onTracklistRemoved () {
   var tracks = TracklistStore.get();
-  var i = tracks.indexOf(track);
-  tracks.splice(i, 1);
+  tracks.shift();
   TracklistActions.set(tracks);
 }
