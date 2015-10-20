@@ -1,8 +1,6 @@
-'use strict';
-
-function log() {
+export function log() {
   if (process.send) {
-    var args = Array.prototype.slice.call(arguments);
+    const args = Array.prototype.slice.call(arguments);
     process.send({
       type: 'log',
       msg: args.join(' ')
@@ -12,7 +10,7 @@ function log() {
   }
 }
 
-function error() {
+export function error() {
   if (process.send) {
     process.send({
       type: 'error',
@@ -23,16 +21,10 @@ function error() {
   }
 }
 
-function onMsg(data) {
+export function onMsg(data) {
   if (data.type === 'error') {
     console.error(data.msg);
   } else if (data.type === 'log' ) {
     console.log(data.msg);
   }
 }
-
-module.exports = {
-  log: log,
-  error: error,
-  onMsg: onMsg
-};

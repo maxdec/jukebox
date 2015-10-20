@@ -1,0 +1,4 @@
+export const PLAYER_PLAY = 'PLAYER_PLAY';
+export const PLAYER_STOP = 'PLAYER_STOP';
+export const PLAYER_SET_VOLUME = 'PLAYER_SET_VOLUME';
+export const PLAYER_RESET = 'PLAYER_RESET';

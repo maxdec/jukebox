@@ -1,0 +1,2 @@
+export const CURRENT_SET = 'CURRENT_SET';
+export const CURRENT_PROGRESS = 'CURRENT_PROGRESS';

@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = {
+export default {
   running: false,
   playing: false
 };

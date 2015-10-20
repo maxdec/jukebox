@@ -1,43 +1,45 @@
-'use strict';
+import {EventEmitter} from 'events';
+import {client as redis} from '../redis';
+import trackBuilder from '../track_builder';
+const key = 'jukebox:tracklist';
 
-var EventEmitter = require('events').EventEmitter;
-var objectAssign = require('object-assign');
-var redis = require('../redis').client;
-var trackBuilder = require('../track_builder');
-var key = 'jukebox:tracklist';
+class TracklistService extends EventEmitter {
+  constructor(...args) {
+    super(...args);
+  }
 
-module.exports = objectAssign({}, EventEmitter.prototype, {
-  find: function (query, callback) {
-    var start = query.start || 0;
-    var stop = query.stop || -1;
+  find(query, callback) {
+    const start = query.start || 0;
+    const stop = query.stop || -1;
     redis.lrange(key, start, stop, function (err, tracks) {
       if (err) return callback(err);
       tracks = tracks.map(trackBuilder.fromJSONSync);
       callback(null, tracks);
     });
-  },
+  }
 
-  create: function (track, callback) {
-    callback = callback || function () {};
-    redis.rpush(key, JSON.stringify(track), function (err) {
+  create(track, callback = () => {}) {
+    redis.rpush(key, JSON.stringify(track), err => {
       if (err) return callback(err);
       this.emit('created', track);
       callback();
-    }.bind(this));
-  },
+    });
+  }
 
   /**
    * Blocking!
    * Removes and returns the first track in the tracklist,
    * or waits for a new one to be added.
    */
-  waitForNext: function (callback) {
-    redis.blpop(key, 0, function (err, results) {
+  waitForNext(callback) {
+    redis.blpop(key, 0, (err, results) => {
       if (err) return callback(err);
       // Returns an array [key, value]
-      var track = trackBuilder.fromJSONSync(results[1]);
+      const track = trackBuilder.fromJSONSync(results[1]);
       this.emit('removed', track);
       callback(null, track);
-    }.bind(this));
+    });
   }
-});
+}
+
+export default new TracklistService();

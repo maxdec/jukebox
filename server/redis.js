@@ -1,6 +1,4 @@
-'use strict';
-
-var redis = require('redis');
+import redis from 'redis';
 
 function _newRedisClient(port, server) {
   var client = redis.createClient(port, server);
@@ -24,7 +22,5 @@ function _newRedisClient(port, server) {
   return client;
 }
 
-module.exports = {
-  client: _newRedisClient(),
-  sub: _newRedisClient()
-};
+export const client = _newRedisClient();
+export const sub = _newRedisClient();

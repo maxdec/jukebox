@@ -1,45 +1,45 @@
-'use strict';
+import {EventEmitter} from 'events';
+import {client as redis} from '../redis';
+import logger from '../logger';
+const key = 'jukebox:listeners';
+const listenersRes = [];
 
-var EventEmitter = require('events').EventEmitter;
-var objectAssign = require('object-assign');
-var redis = require('../redis').client;
-var logger = require('../logger');
-var key = 'jukebox:listeners';
+class ListenersService extends EventEmitter {
+  constructor(...args) {
+    super(...args);
+  }
 
-var listenersRes = [];
-
-module.exports = objectAssign({}, EventEmitter.prototype, {
-  getAllSync: function () {
+  getAllSync() {
     return listenersRes;
-  },
+  }
 
-  count: function (callback) {
-    redis.scard(key, function (err, count) {
+  count(callback) {
+    redis.scard(key, (err, count) => {
       if (err) return callback(err);
       callback(null, count);
     });
-  },
+  }
 
-  add: function (uid, res, callback) {
-    callback = callback || function () {};
+  add(uid, res, callback = () => {}) {
     logger.log('Adding listener');
     listenersRes.push(res);
-    redis.sadd(key, uid, function (err, newCount) {
+    redis.sadd(key, uid, (err, newCount) => {
       if (err) return callback(err);
       this.emit('created', newCount);
       callback();
-    }.bind(this));
-  },
+    });
+  }
 
-  remove: function (uid, res, callback) {
-    callback = callback || function () {};
+  remove(uid, res, callback = () => {}) {
     logger.log('Removed listener. ' + listenersRes.length + ' are left.');
     var idx = listenersRes.indexOf(res);
     listenersRes.splice(idx, 1);
-    redis.srem(key, uid, function (err, removedCount) {
+    redis.srem(key, uid, (err, removedCount) => {
       if (err) return callback(err);
       this.emit('removed', removedCount);
       callback();
-    }.bind(this));
+    });
   }
-});
+}
+
+export default new ListenersService();

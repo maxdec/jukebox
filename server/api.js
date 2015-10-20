@@ -1,26 +1,32 @@
-'use strict';
+import express from 'express';
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import morganLog from 'morgan';
+import favicon from 'serve-favicon';
 
-var express = require('express');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var morganLog = require('morgan');
-var favicon = require('serve-favicon');
+import configureStore from '../common/stores/configureStore';
+import App from '../common/components/App';
+import React from 'react';
+import ReactDOMServer from 'react-dom/server';
+import { Provider } from 'react-redux';
 
-var trackBuilder = require('./track_builder');
-var playerState = require('./player_state');
-var logger = require('./logger');
-var uniqueVisitor = require('./unique_visitor');
+import trackBuilder from './track_builder';
+import playerState from './player_state';
+import logger from './logger';
+import uniqueVisitor from './unique_visitor';
+import * as playerManager from './player_manager';
+
 // Events Socket.io
-require('./socket_events');
+import './socket_events';
 
-var nextTrack = require('./next');
-var tracklist = require('./services/tracklist');
-var listeners = require('./services/listeners');
-var votes = require('./services/votes');
-var current = require('./services/current');
-var history = require('./services/history');
+import nextTrack from './next';
+import tracklist from './services/tracklist';
+import listeners from './services/listeners';
+import votes from './services/votes';
+import current from './services/current';
+import history from './services/history';
 
-module.exports = function (app, playerManager) {
+export default (app) => {
   playerManager.stream.on('data', _sendChunk);
 
   app.use(express.static(__dirname + '/../public'));
@@ -29,14 +35,11 @@ module.exports = function (app, playerManager) {
   app.use(bodyParser.json());
   app.use(cookieParser('lagavulin'));
   app.use(uniqueVisitor);
-  app.set('views', __dirname + '/../public');
-  app.set('view engine', 'ejs');
-  app.engine('html', require('ejs').renderFile);
   app.use(favicon(__dirname + '/../public/jukebox.png'));
 
-  var allowedMethods = 'GET,PUT,POST,DELETE,OPTIONS';
-  var allowedHeaders = 'Content-Length,Content-Type';
-  var allowedHosts = [
+  const allowedMethods = 'GET,PUT,POST,DELETE,OPTIONS';
+  const allowedHeaders = 'Content-Length,Content-Type';
+  const allowedHosts = [
     'http://soundcloud.com',
     'https://soundcloud.com',
     'http://youtube.com',
@@ -54,55 +57,84 @@ module.exports = function (app, playerManager) {
     next();
   }
 
+  // app.route('/')
+  // .get((req, res) => {
+  //   // Compile an initial state
+  //   const initialState = {
+  //     current: {},
+  //     history: [],
+  //     player: {},
+  //     settings: {},
+  //     tracklist: [],
+  //     votes: {}
+  //   };
+
+  //   // Create a new Redux store instance
+  //   const store = configureStore(initialState);
+
+  //   // Render the component to a string
+  //   const html = ReactDOMServer.renderToString(
+  //     <Provider store={store}>
+  //       <App/>
+  //     </Provider>
+  //   );
+
+  //   // Grab the initial state from our Redux store
+  //   const finalState = store.getState();
+
+  //   // Send the rendered page back to the client
+  //   res.send(_renderFullPage(html, finalState));
+  // });
+
   app.route('/player')
-  .get(function (req, res) {
+  .get((req, res) => {
     res.send(playerState);
   })
-  .post(function (req, res) {
+  .post((req, res) => {
     if (!playerState.playing) playerManager.start();
     res.sendStatus(201);
   })
-  .delete(function (req, res) {
+  .delete((req, res) => {
     if (playerState.playing) playerManager.stop();
     res.sendStatus(201);
   });
 
   app.route('/tracks')
   .options(_allowCrossDomain)
-  .get(function (req, res) {
-    tracklist.find({}, function (err, tracks) {
+  .get((req, res) => {
+    tracklist.find({}, (err, tracks) => {
       if (err) return res.status(503).send(err.message);
       res.send(tracks);
     });
   })
-  .post(_allowCrossDomain, function (req, res) {
+  .post(_allowCrossDomain, (req, res) => {
     if (!req.body.url) return res.status(400).send('You need to provide a track URL.');
     trackBuilder.fromString(req.body.url)
-    .then(function (trackOrTracks) {
+    .then(trackOrTracks => {
       res.status(201).send(trackOrTracks);
 
       if (Array.isArray(trackOrTracks)) {
-        trackOrTracks.forEach(function (track) {
+        trackOrTracks.forEach(track => {
           tracklist.create(track);
         });
       } else {
         tracklist.create(trackOrTracks);
       }
-    }, function (err) {
+    }, err => {
       res.status(500).send(err.message);
     });
   });
 
   app.route('/current')
-  .get(function (req, res) {
-    current.get(function (err, track) {
+  .get((req, res) => {
+    current.get((err, track) => {
       if (err) return res.status(500).send(err);
       if (!track) return res.send({});
       res.send(track);
     });
   })
-  .delete(function (req, res) {
-    nextTrack(function (err) {
+  .delete((req, res) => {
+    nextTrack(err => {
       if (err) return res.status(500).send(err);
       playerManager.stop();
       playerManager.start();
@@ -110,10 +142,10 @@ module.exports = function (app, playerManager) {
   });
 
   app.route('/votes')
-  .get(function (req, res) {
-    votes.count(function (err, votesCount) {
+  .get((req, res) => {
+    votes.count((err, votesCount) => {
       if (err) return logger.log(err);
-      listeners.count(function (err, listenersCount) {
+      listeners.count((err, listenersCount) => {
         if (err) return logger.log(err);
         res.send({
           favorable: votesCount,
@@ -122,23 +154,23 @@ module.exports = function (app, playerManager) {
       });
     });
   })
-  .post(function (req, res) {
-    var identifier = req.cookies.uid || req.ip; // shouldn't be `req.ip` but...
-    votes.create(identifier, function (err, newCount) {
+  .post((req, res) => {
+    const identifier = req.cookies.uid || req.ip; // shouldn't be `req.ip` but...
+    votes.create(identifier, (err, newCount) => {
       if (err) return res.status(500).send(err);
       res.sendStatus(201);
       if (newCount > 0) _checkVotesNext();
     });
   });
 
-  app.get('/history', function (req, res) {
-    history.find({}, function (err, tracks) {
+  app.get('/history', (req, res) => {
+    history.find({}, (err, tracks) => {
       if (err) return res.status(500).send(err.message);
       res.send(tracks);
     });
   });
 
-  app.get('/stream', function (req, res) {
+  app.get('/stream', (req, res) => {
     res.set({
       'Content-Type': 'audio/mpeg',
       'Transfer-Encoding': 'chunked',
@@ -161,12 +193,12 @@ module.exports = function (app, playerManager) {
   * Check whether we need to skip the track.
   */
   function _checkVotesNext(callback) {
-    votes.count(function (err, votesCount) {
+    votes.count((err, votesCount) => {
       if (err) return callback(err);
-      listeners.count(function (err, listenersCount) {
+      listeners.count((err, listenersCount) => {
         if (err) return callback(err);
         if (votesCount < Math.round(listenersCount / 2)) return;
-        nextTrack(function (err) {
+        nextTrack(err => {
           if (err) return callback(err);
           playerManager.stop();
           playerManager.start();
@@ -179,7 +211,25 @@ module.exports = function (app, playerManager) {
 
 // Listeners are 'res' objects
 function _sendChunk(chunk) {
-  listeners.getAllSync().forEach(function (listener) {
+  listeners.getAllSync().forEach(listener => {
     listener.write(chunk);
   });
+}
+
+function _renderFullPage(html, initialState) {
+  return `
+    <!doctype html>
+    <html>
+      <head>
+        <title>Redux Universal Example</title>
+      </head>
+      <body>
+        <div id="app">${html}</div>
+        <script>
+          window.__INITIAL_STATE__ = ${JSON.stringify(initialState)};
+        </script>
+        <script src="/static/bundle.js"></script>
+      </body>
+    </html>
+    `;
 }

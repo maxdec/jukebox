@@ -1,8 +1,6 @@
-'use strict';
+let io;
 
-var io;
-
-module.exports = function (server) {
-  if (server) io = require('socket.io')(server);
+export default function init(server) {
+  if (!io && server) io = require('socket.io')(server);
   return io;
-};
+}

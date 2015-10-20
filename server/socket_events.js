@@ -1,14 +1,11 @@
-'use strict';
-/* jshint -W079 */
-
-var socket = require('./socket')();
-var sub = require('./redis').sub;
-var current = require('./services/current');
-var tracklist = require('./services/tracklist');
-var history = require('./services/history');
-var listeners = require('./services/listeners');
-var votes = require('./services/votes');
-var throttle = require('./throttle');
+import socket from './socket';
+import {sub} from './redis';
+import current from './services/current';
+import tracklist from './services/tracklist';
+import history from './services/history';
+import listeners from './services/listeners';
+import votes from './services/votes';
+import throttle from './throttle';
 
 sub.subscribe([
   'current:set',
@@ -21,43 +18,19 @@ sub.subscribe([
   'listeners:removed',
   'votes:created',
   'votes:removed',
-], function () {
-  sub.on('message', function (channel, data) {
-    socket.emit(channel, JSON.parse(data));
+], () => {
+  sub.on('message', (channel, data) => {
+    socket().emit(channel, JSON.parse(data));
   });
 });
 
-current.on('set', function (track) {
-  socket.emit('current:set', track);
-});
-current.on('removed', function () {
-  socket.emit('current:removed');
-});
-current.on('position', throttle(function (perc) {
-  socket.emit('current:position', perc);
-}, 1000));
-
-tracklist.on('created', function (track) {
-  socket.emit('tracklist:created', track);
-});
-tracklist.on('removed', function (track) {
-  socket.emit('tracklist:removed', track);
-});
-
-history.on('created', function (track) {
-  socket.emit('history:created', track);
-});
-
-listeners.on('created', function (count) {
-  socket.emit('listeners:created', count);
-});
-listeners.on('removed', function (count) {
-  socket.emit('listeners:removed', count);
-});
-
-votes.on('created', function (count) {
-  socket.emit('votes:created', count);
-});
-votes.on('removed', function (count) {
-  socket.emit('votes:removed', count);
-});
+current.on('set', track => socket().emit('current:set', track));
+current.on('removed', () => socket().emit('current:removed'));
+current.on('position', throttle(perc => socket().emit('current:position', perc), 1000));
+tracklist.on('created', track => socket().emit('tracklist:created', track));
+tracklist.on('removed', track => socket().emit('tracklist:removed', track));
+history.on('created', track => socket().emit('history:created', track));
+listeners.on('created', count => socket().emit('listeners:created', count));
+listeners.on('removed', count => socket().emit('listeners:removed', count));
+votes.on('created', count => socket().emit('votes:created', count));
+votes.on('removed', count => socket().emit('votes:removed', count));

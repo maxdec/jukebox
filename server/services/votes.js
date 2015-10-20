@@ -1,42 +1,42 @@
-'use strict';
+import {EventEmitter} from 'events';
+import {client as redis} from '../redis';
+const key = 'jukebox:votes';
 
-var EventEmitter = require('events').EventEmitter;
-var objectAssign = require('object-assign');
-var redis = require('../redis').client;
-var key = 'jukebox:votes';
+class VotesService extends EventEmitter {
+  constructor(...args) {
+    super(...args);
+  }
 
-module.exports = objectAssign({}, EventEmitter.prototype, {
-  count: function (callback) {
-    redis.scard(key, function (err, count) {
+  count(callback) {
+    redis.scard(key, (err, count) => {
       if (err) return callback(err);
       callback(null, count);
     });
-  },
+  }
 
-  create: function (uid, callback) {
-    callback = callback || function () {};
-    redis.sadd(key, uid, function (err, newCount) {
+  create(uid, callback = () => {}) {
+    redis.sadd(key, uid, (err, newCount) => {
       if (err) return callback(err);
       this.emit('created', newCount);
       callback();
-    }.bind(this));
-  },
+    });
+  }
 
-  remove: function (uid, callback) {
-    callback = callback || function () {};
-    redis.srem(key, uid, function (err, removedCount) {
+  remove(uid, callback = () => {}) {
+    redis.srem(key, uid, (err, removedCount) => {
       if (err) return callback(err);
       this.emit('removed', removedCount);
       callback();
-    }.bind(this));
-  },
+    });
+  }
 
-  clear: function (callback) {
-    callback = callback || function () {};
-    redis.del(key, function (err) {
+  clear(callback = () => {}) {
+    redis.del(key, err => {
       if (err) return callback(err);
       this.emit('cleared');
       callback();
-    }.bind(this));
+    });
   }
-});
+}
+
+export default new VotesService();

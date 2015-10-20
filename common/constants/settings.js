@@ -1,0 +1,2 @@
+export const SETTINGS_SET = 'SETTINGS_SET';
+export const SETTINGS_SET_ALL = 'SETTINGS_SET_ALL';

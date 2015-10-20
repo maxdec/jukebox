@@ -1,16 +1,12 @@
-'use strict';
-/* jshint -W079 */
+import current from './services/current';
+import history from './services/history';
+import votes from './services/votes';
 
-var current = require('./services/current');
-var history = require('./services/history');
-var votes = require('./services/votes');
-
-module.exports = function next(callback) {
-  callback = callback || function () {};
-  current.get(function (err, prevTrack) {
+export default function next(callback = () => {}) {
+  current.get((err, prevTrack) => {
     if (err) return callback(err);
     if (prevTrack) {
-      history.create(prevTrack, function (err) {
+      history.create(prevTrack, err => {
         if (err) return callback(err);
         // Clear the votes and current song
         votes.clear();
@@ -23,4 +19,4 @@ module.exports = function next(callback) {
       callback();
     }
   });
-};
+}

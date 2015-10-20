@@ -1,22 +1,20 @@
-'use strict';
+import {fork} from 'child_process';
+import config from './config';
+import {PassThrough} from 'stream';
+export const stream = new PassThrough();
 
-var cp = require('child_process');
-var config = require('./config');
-var PassThrough = require('stream').PassThrough;
-var stream = new PassThrough();
+let worker;
+import state from './player_state';
+import * as logger from './logger';
 
-var worker;
-var state = require('./player_state');
-var logger = require('./logger');
-
-function start() {
+export function start() {
   console.log('Worker started');
   if (worker) {
     state.running = true;
     return;
   }
 
-  worker = cp.fork(__dirname + '/player_worker.js', {
+  worker = fork(__dirname + '/player_worker.js', {
     silent: true,
     cwd: __dirname
   });
@@ -47,12 +45,7 @@ function _attachOutputs() {
   if (worker) worker.stdout.pipe(stream, { end: false });
 }
 
-module.exports = {
-  start: start,
-  stop: function stop() { if (worker) worker.kill(); },
-  state: function state() { return state; },
-  setAuto: function setAuto(bool) { config.autoReload = bool; },
-  stream: stream
-};
+export function stop() { if (worker) worker.kill(); }
+export function setAuto(bool) { config.autoReload = bool; }
 
 if (config.autoReload) start();

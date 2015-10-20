@@ -1,11 +1,9 @@
-'use strict';
+import state from '../player_state';
+import current from '../services/current';
 
-var state = require('../player_state');
-var current = require('../services/current');
-
-module.exports = function (m) {
+export default function (m) {
   state.playing = true;
   if (m.type === 'progress') {
     current.updateCurrentPosition(m.current, m.total);
   }
-};
+}

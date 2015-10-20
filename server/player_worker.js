@@ -1,15 +1,13 @@
-'use strict';
+import config from './config';
+import * as logger from './logger';
+import tracklist from './services/tracklist';
+import current from './services/current';
+import next from './next';
 
-var Q = require('q');
-var config = require('./config');
-var retries = 0;
-var logger = require('./logger');
+let retries = 0;
 
-var tracklist = require('./services/tracklist');
-var current = require('./services/current');
-var next = require('./next');
 // Send services events through redis pub/sub
-require('./redis_events');
+import './redis_events';
 
 function loop() {
   current.get(function (err, track) {
